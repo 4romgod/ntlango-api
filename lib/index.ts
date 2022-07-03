@@ -2,7 +2,7 @@ import express, { Express } from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import authRouter from './route/auth';
+import authRouter from './router/user';
 
 dotenv.config();
 
@@ -11,7 +11,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-app.use('/api', authRouter);
+app.use('/api/v1/users', authRouter);
 
 const port = process.env.PORT;
 app.listen(port, () => {
