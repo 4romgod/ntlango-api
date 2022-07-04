@@ -15,7 +15,7 @@ class CognitoUserPoolHelper {
         this.cognitoIsp = new CognitoIdentityServiceProvider({region: process.env.AWS_REGION});
     }
 
-    public async signUp({email, password, firstName, lastName}): Promise<Boolean> {
+    public async signUp({email, password, firstName, lastName}): Promise<boolean> {
         const params: SignUpRequest = {
             ClientId: process.env.COGNITO_CLIENT_ID || '',
             Username: email,
