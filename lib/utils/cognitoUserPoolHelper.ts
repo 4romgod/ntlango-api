@@ -1,12 +1,12 @@
-import { CognitoIdentityServiceProvider } from 'aws-sdk';
-import { ConfirmSignUpRequest, InitiateAuthRequest, SignUpRequest } from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import { InternalServiceErrorException } from './exceptions';
+import {CognitoIdentityServiceProvider} from 'aws-sdk';
+import {ConfirmSignUpRequest, InitiateAuthRequest, SignUpRequest} from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import {InternalServiceErrorException} from './exceptions';
 import 'dotenv/config';
 
 export interface IUserToken {
     accessToken: string;
     refreshToken: string;
-};
+}
 
 class CognitoUserPoolHelper {
     public cognitoIsp: CognitoIdentityServiceProvider;
@@ -15,15 +15,15 @@ class CognitoUserPoolHelper {
         this.cognitoIsp = new CognitoIdentityServiceProvider({region: process.env.AWS_REGION});
     }
 
-    public async signUp({ email, password, firstName, lastName }): Promise<Boolean> {
+    public async signUp({email, password, firstName, lastName}): Promise<Boolean> {
         const params: SignUpRequest = {
             ClientId: process.env.COGNITO_CLIENT_ID || '',
             Username: email,
             Password: password,
             UserAttributes: [
-                { Name: 'email', Value: email },
-                { Name: 'given_name', Value: firstName },
-                { Name: 'family_name', Value: lastName },
+                {Name: 'email', Value: email},
+                {Name: 'given_name', Value: firstName},
+                {Name: 'family_name', Value: lastName},
             ],
         };
         try {
@@ -35,7 +35,7 @@ class CognitoUserPoolHelper {
         }
     }
 
-    public async confirmSignUp({ email, code }: { email: string, code: string }): Promise<void> {
+    public async confirmSignUp({email, code}: {email: string; code: string}): Promise<void> {
         const params: ConfirmSignUpRequest = {
             ClientId: process.env.COGNITO_CLIENT_ID || '',
             Username: email,
@@ -49,26 +49,26 @@ class CognitoUserPoolHelper {
         }
     }
 
-    public async signIn({ email, password }: { email: string, password: string }): Promise<IUserToken> {
+    public async signIn({email, password}: {email: string; password: string}): Promise<IUserToken> {
         const params: InitiateAuthRequest = {
             ClientId: process.env.COGNITO_CLIENT_ID || '',
             AuthFlow: 'ALLOW_USER_PASSWORD_AUTH',
             AuthParameters: {
-              USERNAME: email,
-              PASSWORD: password
-            }
+                USERNAME: email,
+                PASSWORD: password,
+            },
         };
         try {
             const cognitoRes = await this.cognitoIsp.initiateAuth(params).promise();
             return {
                 accessToken: cognitoRes.AuthenticationResult?.AccessToken || '',
                 refreshToken: cognitoRes.AuthenticationResult?.RefreshToken || '',
-            }
+            };
         } catch (error) {
             console.error('Error while signing in', error);
             throw InternalServiceErrorException('Failed to signin an existing user');
         }
     }
-};
+}
 
 export default new CognitoUserPoolHelper();

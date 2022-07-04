@@ -1,7 +1,7 @@
 export interface NtlangoError extends Error {
     statusCode: number;
     errorType: string;
-};
+}
 
 /**
  * @desc Return HTTP Exception for given statusCode, errorType and errorMsg
@@ -10,7 +10,7 @@ export interface NtlangoError extends Error {
  * @param {string} errorMsg - the error message of the HTTP Exception
  * @return {object} Error object
  */
- export const HttpException = (statusCode: number, errorType: string, errorMsg: string): NtlangoError => {
+export const HttpException = (statusCode: number, errorType: string, errorMsg: string): NtlangoError => {
     const err: NtlangoError = Object.assign(Error(errorMsg), {statusCode, errorType});
     Error.captureStackTrace(err, HttpException);
     return err;
@@ -32,7 +32,7 @@ export const InvalidArgumentException = (errorMsg: string): NtlangoError => {
  * @param {string} errorMsg - the error message of the UnauthenticatedException Exception
  * @return {object} Error object
  */
- export const UnauthenticatedException = (errorMsg: string): NtlangoError => {
+export const UnauthenticatedException = (errorMsg: string): NtlangoError => {
     const error = HttpException(401, 'UnauthenticatedException', errorMsg);
     Error.captureStackTrace(error, UnauthenticatedException);
     return error;

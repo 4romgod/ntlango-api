@@ -1,4 +1,4 @@
-import express, { Express } from 'express';
+import express, {Express} from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
@@ -8,8 +8,8 @@ dotenv.config();
 
 const app: Express = express();
 app.use(morgan('dev'));
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.use('/api/v1/users', authRouter);
 
