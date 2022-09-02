@@ -6,7 +6,6 @@ interface IUserController {
     signUp: express.Handler;
     signIn: express.Handler;
     confirmSignUp: express.Handler;
-    getProfile: express.Handler;
 }
 
 const userController: IUserController = {
@@ -26,10 +25,6 @@ const userController: IUserController = {
         const {email, password} = req.body;
         await cognitoUserPoolHelper.signIn({email, password});
         res.status(200).json({message: 'you are signed in'});
-    },
-
-    getProfile: (req: Request, res: Response) => {
-        res.status(200).json({message: 'here is your profile'});
     },
 };
 

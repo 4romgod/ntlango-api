@@ -12,7 +12,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
-app.use('/api/v1/users', authRouter);
+app.use('/api/v1', authRouter);
 app.use('/api/v1', healthCheckRouter);
 
 const port = process.env.PORT;
