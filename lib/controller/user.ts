@@ -11,21 +11,33 @@ interface IUserController {
 
 const userController: IUserController = {
     signUp: async (req: Request, res: Response) => {
-        const {password, email, firstName, lastName} = req.body;
-        await cognitoUserPoolHelper.signUp({email, password, firstName, lastName});
-        return res.status(HttpStatusCode.OK).json({message: 'you are signed up'});
+        try {
+            const {password, email, firstName, lastName} = req.body;
+            await cognitoUserPoolHelper.signUp({email, password, firstName, lastName});
+            return res.status(HttpStatusCode.OK).json({message: 'you are signed up'});
+        } catch (error: any) {
+            return res.status(error.statusCode).json({error: error.message});
+        }
     },
 
     confirmSignUp: async (req: Request, res: Response) => {
-        const {email, code} = req.body;
-        await cognitoUserPoolHelper.confirmSignUp({email, code});
-        return res.status(HttpStatusCode.OK).json({message: 'your signup is confirmed'});
+        try {
+            const {email, code} = req.body;
+            await cognitoUserPoolHelper.confirmSignUp({email, code});
+            return res.status(HttpStatusCode.OK).json({message: 'your signup is confirmed'});
+        } catch (error: any) {
+            return res.status(error.statusCode).json({error: error.message});
+        }
     },
 
     signIn: async (req: Request, res: Response) => {
-        const {email, password} = req.body;
-        await cognitoUserPoolHelper.signIn({email, password});
-        return res.status(HttpStatusCode.OK).json({message: 'you are signed in'});
+        try {
+            const {email, password} = req.body;
+            await cognitoUserPoolHelper.signIn({email, password});
+            return res.status(HttpStatusCode.OK).json({message: 'you are signed in'});
+        } catch (error: any) {
+            return res.status(error.statusCode).json({error: error.message});
+        }
     },
 };
 
