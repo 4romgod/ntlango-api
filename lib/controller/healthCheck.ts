@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import express from 'express';
+import {HttpStatusCode} from '../utils/constants';
 
 interface IHealthCheckController {
     healthCheck: express.Handler;
@@ -12,7 +13,7 @@ const healthCheckController: IHealthCheckController = {
             message: 'OK',
             timestamp: Date.now(),
         };
-        res.status(200).json(healthcheck);
+        return res.status(HttpStatusCode.OK).json(healthcheck);
     },
 };
 

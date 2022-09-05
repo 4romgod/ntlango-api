@@ -1,3 +1,5 @@
+import {HttpStatusCode} from './constants';
+
 export interface NtlangoError extends Error {
     statusCode: number;
     errorType: string;
@@ -22,7 +24,7 @@ export const HttpException = (statusCode: number, errorType: string, errorMsg: s
  * @return {object} Error object
  */
 export const InvalidArgumentException = (errorMsg: string): NtlangoError => {
-    const error = HttpException(400, 'InvalidArgumentException', errorMsg);
+    const error = HttpException(HttpStatusCode.BAD_REQUEST, 'InvalidArgumentException', errorMsg);
     Error.captureStackTrace(error, InvalidArgumentException);
     return error;
 };
@@ -33,7 +35,7 @@ export const InvalidArgumentException = (errorMsg: string): NtlangoError => {
  * @return {object} Error object
  */
 export const UnauthenticatedException = (errorMsg: string): NtlangoError => {
-    const error = HttpException(401, 'UnauthenticatedException', errorMsg);
+    const error = HttpException(HttpStatusCode.UNAUTHENTICATED, 'UnauthenticatedException', errorMsg);
     Error.captureStackTrace(error, UnauthenticatedException);
     return error;
 };
@@ -44,7 +46,7 @@ export const UnauthenticatedException = (errorMsg: string): NtlangoError => {
  * @return {object} Error object
  */
 export const UnauthorizedException = (errorMsg: string): NtlangoError => {
-    const error = HttpException(403, 'UnauthorizedException', errorMsg);
+    const error = HttpException(HttpStatusCode.UNAUTHORIZED, 'UnauthorizedException', errorMsg);
     Error.captureStackTrace(error, UnauthorizedException);
     return error;
 };
@@ -55,7 +57,7 @@ export const UnauthorizedException = (errorMsg: string): NtlangoError => {
  * @return {object} Error object
  */
 export const ResourceNotFoundException = (errorMsg: string): NtlangoError => {
-    const error = HttpException(404, 'ResourceNotFoundException', errorMsg);
+    const error = HttpException(HttpStatusCode.NOT_FOUND, 'ResourceNotFoundException', errorMsg);
     Error.captureStackTrace(error, ResourceNotFoundException);
     return error;
 };
@@ -66,7 +68,7 @@ export const ResourceNotFoundException = (errorMsg: string): NtlangoError => {
  * @return {object} Error object
  */
 export const InternalServiceErrorException = (errorMsg: string): NtlangoError => {
-    const error = HttpException(500, 'InternalServiceErrorException', errorMsg);
+    const error = HttpException(HttpStatusCode.INTERNAL_SERVER, 'InternalServiceErrorException', errorMsg);
     Error.captureStackTrace(error, InternalServiceErrorException);
     return error;
 };

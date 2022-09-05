@@ -1,6 +1,6 @@
 import {CognitoIdentityServiceProvider} from 'aws-sdk';
 import {ConfirmSignUpRequest, InitiateAuthRequest, SignUpRequest} from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import {InternalServiceErrorException} from './exceptions';
+import {InternalServiceErrorException, InvalidArgumentException} from './exceptions';
 import 'dotenv/config';
 
 export interface IUserToken {
@@ -29,8 +29,11 @@ class CognitoUserPoolHelper {
         try {
             const cognitoRes = await this.cognitoIsp.signUp(params).promise();
             return cognitoRes.UserConfirmed;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error while signing up', error);
+            if (error.code === 'UsernameExistsException') {
+                throw InvalidArgumentException('Username already exists');
+            }
             throw InternalServiceErrorException('Failed to signup a new user');
         }
     }
