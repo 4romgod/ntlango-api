@@ -10,6 +10,7 @@ interface IUserController {
     updateUserAttributes: express.Handler;
     forgotPassword: express.Handler;
     confirmForgotPassword: express.Handler;
+    removeAccount: express.Handler;
 }
 
 const userController: IUserController = {
@@ -80,6 +81,17 @@ const userController: IUserController = {
             const {email, password, code} = req.body;
             await cognitoClient.confirmForgotPassword({email, password, code});
             return res.status(HttpStatusCode.OK).json({message: 'your password update is confirmed'});
+        } catch (error: any) {
+            console.log(error);
+            return res.status(error.statusCode).json({error: error.message});
+        }
+    },
+
+    removeAccount: async (req: Request, res: Response) => {
+        try {
+            const {accessToken} = req.body;
+            await cognitoClient.removeAccount({accessToken});
+            return res.status(HttpStatusCode.OK).json({message: 'your account has been successfully deleted'});
         } catch (error: any) {
             console.log(error);
             return res.status(error.statusCode).json({error: error.message});

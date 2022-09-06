@@ -10,5 +10,6 @@ router.post('/users/signin', userController.signIn);
 router.put('/users/updateAttributes', userValidator.updateUserAttributes, userValidator.isInputValid, userController.updateUserAttributes);
 router.put('/users/forgotPassword', userValidator.forgotPassword, userValidator.isInputValid, userController.forgotPassword);
 router.put('/users/forgotPassword/confirm', userValidator.confirmForgotPassword, userValidator.isInputValid, userController.confirmForgotPassword);
+router.delete('/users/remove', userValidator.removeAccount, userValidator.isInputValid, userController.removeAccount);
 
 export default router;

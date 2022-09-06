@@ -29,14 +29,16 @@ const updateUserAttributes = [
     check('attributes.*.Value').exists().notEmpty().withMessage('Provide a valid "Value" parameter'),
 ];
 
-const forgotPassword = [
-    check('email').isEmail().withMessage('Must be a valid email address'),
-];
+const forgotPassword = [check('email').isEmail().withMessage('Must be a valid email address')];
 
 const confirmForgotPassword = [
     check('email').isEmail().withMessage('Must be a valid email address'),
     check('code').isLength({min: 6}).withMessage('Invalid confirmation code'),
     check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
+];
+
+const removeAccount = [
+    check('accessToken').notEmpty().withMessage('No accessToken provided').matches('[A-Za-z0-9-_=.]+').withMessage('Invalid accessToken'),
 ];
 
 const isInputValid = (req: Request, res: Response, next: any) => {
@@ -54,5 +56,6 @@ export default {
     updateUserAttributes,
     forgotPassword,
     confirmForgotPassword,
+    removeAccount,
     isInputValid,
 };

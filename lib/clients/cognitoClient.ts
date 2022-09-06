@@ -7,6 +7,7 @@ import {
     UpdateUserAttributesRequest,
     ForgotPasswordRequest,
     ConfirmForgotPasswordRequest,
+    DeleteUserRequest,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import {InternalServiceErrorException, InvalidArgumentException} from '../utils/exceptions';
 import 'dotenv/config';
@@ -131,7 +132,7 @@ class CognitoClient {
         }
     }
 
-    public async confirmForgotPassword({email, password, code}: {email: string, password: string, code: string}): Promise<void> {
+    public async confirmForgotPassword({email, password, code}: {email: string; password: string; code: string}): Promise<void> {
         const params: ConfirmForgotPasswordRequest = {
             ClientId: `${process.env.COGNITO_CLIENT_ID}`,
             Username: email,
@@ -146,6 +147,21 @@ class CognitoClient {
                 throw InvalidArgumentException(error.message);
             }
             throw InternalServiceErrorException('Error while calling confirmForgotPassword');
+        }
+    }
+
+    public async removeAccount({accessToken}: {accessToken: string}): Promise<void> {
+        const params: DeleteUserRequest = {
+            AccessToken: accessToken,
+        };
+        try {
+            await this.cognitoIsp.deleteUser(params).promise();
+        } catch (error: any) {
+            console.error('Error while calling deleteAccount', error);
+            if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
+                throw InvalidArgumentException(error.message);
+            }
+            throw InternalServiceErrorException('Error while calling deleteAccount');
         }
     }
 
