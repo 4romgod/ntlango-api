@@ -5,6 +5,8 @@ import {
     SignUpRequest,
     ResendConfirmationCodeRequest,
     UpdateUserAttributesRequest,
+    ForgotPasswordRequest,
+    ConfirmForgotPasswordRequest,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import {InternalServiceErrorException, InvalidArgumentException} from '../utils/exceptions';
 import 'dotenv/config';
@@ -92,6 +94,8 @@ class CognitoClient {
             if (error.code === 'UserNotConfirmedException') {
                 await this.resendConfirmation({email});
                 throw InvalidArgumentException('Confirm your email before signing in');
+            } else if (error.code === 'NotAuthorizedException') {
+                throw InvalidArgumentException(error.message);
             }
             throw InternalServiceErrorException('Failed to signin an existing user');
         }
@@ -111,6 +115,37 @@ class CognitoClient {
                 throw InvalidArgumentException(error.message);
             }
             throw InternalServiceErrorException('Failed to update user attributes');
+        }
+    }
+
+    public async forgotPassword({email}: {email: string}): Promise<void> {
+        const params: ForgotPasswordRequest = {
+            ClientId: `${process.env.COGNITO_CLIENT_ID}`,
+            Username: email,
+        };
+        try {
+            await this.cognitoIsp.forgotPassword(params).promise();
+        } catch (error: any) {
+            console.error('Error while calling forgotPassword', error);
+            throw InternalServiceErrorException('Error while calling forgotPassword');
+        }
+    }
+
+    public async confirmForgotPassword({email, password, code}: {email: string, password: string, code: string}): Promise<void> {
+        const params: ConfirmForgotPasswordRequest = {
+            ClientId: `${process.env.COGNITO_CLIENT_ID}`,
+            Username: email,
+            Password: password,
+            ConfirmationCode: code,
+        };
+        try {
+            await this.cognitoIsp.confirmForgotPassword(params).promise();
+        } catch (error: any) {
+            console.error('Error while calling confirmForgotPassword', error);
+            if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
+                throw InvalidArgumentException(error.message);
+            }
+            throw InternalServiceErrorException('Error while calling confirmForgotPassword');
         }
     }
 
