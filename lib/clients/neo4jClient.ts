@@ -1,8 +1,8 @@
 import * as neo4j from 'neo4j-driver';
 import 'dotenv/config';
-import { InternalServiceErrorException } from '../utils/exceptions';
+import {InternalServiceErrorException} from '../utils/exceptions';
 
-const {NEO4J_URL, NEO4J_USERNAME, NEO4J_PASSWORD, NEO4J_DATABASE} = process.env;
+const {NEO4J_URL, NEO4J_USERNAME, NEO4J_PASSWORD} = process.env;
 
 /**
  * https://medium.com/nirman-tech-blog/crud-operation-using-expressjs-and-neo4j-ccdfcd40ae15
@@ -18,26 +18,25 @@ class Neo4jClient {
 
     public async executeCypherQuery(statement: string, params = {}) {
         try {
-            const result = this.neo4jSession.run(statement, params);
-            this.neo4jDriver.close();
-            this.neo4jSession.close();
-            return result;
+            const result = await this.neo4jSession.run(statement, params);
+            return this.formatResponse(result);
         } catch (error) {
             console.log('Error while calling neo4j', error);
-            throw InternalServiceErrorException('Failed to call neo4j');
+            throw InternalServiceErrorException('Failed to call the database');
         }
     }
 
     /**
      * This function takes a neo4j response object and formats it nicely.
      * @param resultObj Neo4j Result Object
-     * @returns 
+     * @returns
      */
-    public formatResponse(resultObj: neo4j.QueryResult) {
+    public formatResponse(resultObj: any) {
+        console.log(resultObj);
         const result: any[] = [];
         if (resultObj.records.length > 0) {
-            resultObj.records.map((record) => {
-                // result.push(record._fields[0].properties);
+            resultObj.records.map((record: any) => {
+                result.push(record._fields[0].properties);
             });
         }
         return result;
