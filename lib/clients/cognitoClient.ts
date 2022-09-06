@@ -4,6 +4,7 @@ import {
     InitiateAuthRequest,
     SignUpRequest,
     ResendConfirmationCodeRequest,
+    UpdateUserAttributesRequest,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import {InternalServiceErrorException, InvalidArgumentException} from '../utils/exceptions';
 import 'dotenv/config';
@@ -23,15 +24,18 @@ class CognitoClient {
         this.cognitoIsp = new CognitoIdentityServiceProvider({region: process.env.AWS_REGION});
     }
 
-    public async signUp({email, password, firstName, lastName}): Promise<boolean> {
+    public async signUp({email, address, gender, given_name, family_name, birthdate, password}): Promise<boolean> {
         const params: SignUpRequest = {
             ClientId: process.env.COGNITO_CLIENT_ID || '',
             Username: email,
             Password: password,
             UserAttributes: [
                 {Name: 'email', Value: email},
-                {Name: 'given_name', Value: firstName},
-                {Name: 'family_name', Value: lastName},
+                {Name: 'address', Value: address},
+                {Name: 'gender', Value: gender},
+                {Name: 'given_name', Value: given_name},
+                {Name: 'family_name', Value: family_name},
+                {Name: 'birthdate', Value: birthdate},
             ],
         };
         try {
@@ -57,6 +61,8 @@ class CognitoClient {
         } catch (error: any) {
             console.error('Error while confirming signup', error);
             if (error.code === 'CodeMismatchException') {
+                throw InvalidArgumentException(error.message);
+            } else if (error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
             }
             throw InternalServiceErrorException('Failed to confirm signup for new user');
@@ -88,6 +94,23 @@ class CognitoClient {
                 throw InvalidArgumentException('Confirm your email before signing in');
             }
             throw InternalServiceErrorException('Failed to signin an existing user');
+        }
+    }
+
+    public async updateUserAttributes({accessToken, attributes}: {accessToken: string; attributes: {Name: string; Value: string}[]}): Promise<void> {
+        const params: UpdateUserAttributesRequest = {
+            AccessToken: accessToken,
+            UserAttributes: attributes,
+        };
+        try {
+            await this.cognitoIsp.updateUserAttributes(params).promise();
+        } catch (error: any) {
+            console.error('Error while updating user attributes', error);
+            console.error('Error while confirming signup', error);
+            if (error.code === 'UnexpectedParameter' || error.code === 'InvalidParameterException') {
+                throw InvalidArgumentException(error.message);
+            }
+            throw InternalServiceErrorException('Failed to update user attributes');
         }
     }
 
