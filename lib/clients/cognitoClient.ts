@@ -1,6 +1,6 @@
 import {CognitoIdentityServiceProvider} from 'aws-sdk';
 import {ConfirmSignUpRequest, InitiateAuthRequest, SignUpRequest} from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import {InternalServiceErrorException, InvalidArgumentException} from './exceptions';
+import {InternalServiceErrorException, InvalidArgumentException} from '../utils/exceptions';
 import 'dotenv/config';
 
 export interface IUserToken {
@@ -8,7 +8,7 @@ export interface IUserToken {
     refreshToken: string;
 }
 
-class CognitoUserPoolHelper {
+class CognitoClient {
     public cognitoIsp: CognitoIdentityServiceProvider;
 
     constructor() {
@@ -74,4 +74,4 @@ class CognitoUserPoolHelper {
     }
 }
 
-export default new CognitoUserPoolHelper();
+export default new CognitoClient();
