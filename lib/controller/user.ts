@@ -17,15 +17,12 @@ const userController: IUserController = {
     signUp: async (req: Request, res: Response) => {
         try {
             const {email, address, gender, given_name, family_name, birthdate, password} = req.body;
-            await cognitoClient.signUp({email, address, gender, given_name, family_name, birthdate, password});
+            const cognitoRes = await cognitoClient.signUp({email, address, gender, given_name, family_name, birthdate, password});
 
-            const query = `
-                CREATE 
-                    (user:USERS {given_name: $given_name, family_name: $family_name, email: $email, gender: $gender, birthdate: $birthdate}) 
-                RETURN user`;
-            const dbRes = await neo4jClient.executeCypherQuery(query, {email, address, gender, given_name, family_name, birthdate});
+            const query = `CREATE (u:USERS {given_name: $given_name, family_name: $family_name, email: $email, gender: $gender, birthdate: $birthdate}) RETURN u`;
+            await neo4jClient.executeCypherQuery(query, {email, address, gender, given_name, family_name, birthdate});
 
-            return res.status(HttpStatusCode.OK).json(dbRes);
+            return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             console.log(error);
             return res.status(error.statusCode).json({error: error.message});
@@ -35,8 +32,8 @@ const userController: IUserController = {
     confirmSignUp: async (req: Request, res: Response) => {
         try {
             const {email, code} = req.body;
-            await cognitoClient.confirmSignUp({email, code});
-            return res.status(HttpStatusCode.OK).json({message: 'your signup is confirmed'});
+            const cognitoRes = await cognitoClient.confirmSignUp({email, code});
+            return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             console.log(error);
             return res.status(error.statusCode).json({error: error.message});
@@ -80,8 +77,8 @@ const userController: IUserController = {
     confirmForgotPassword: async (req: Request, res: Response) => {
         try {
             const {email, password, code} = req.body;
-            await cognitoClient.confirmForgotPassword({email, password, code});
-            return res.status(HttpStatusCode.OK).json({message: 'your password update is confirmed'});
+            const cognitoRes = await cognitoClient.confirmForgotPassword({email, password, code});
+            return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             console.log(error);
             return res.status(error.statusCode).json({error: error.message});
@@ -91,8 +88,8 @@ const userController: IUserController = {
     removeAccount: async (req: Request, res: Response) => {
         try {
             const accessToken = req.headers.authorization || '';
-            await cognitoClient.removeAccount({accessToken});
-            return res.status(HttpStatusCode.OK).json({message: 'your account has been successfully deleted'});
+            const cognitoRes = await cognitoClient.removeAccount({accessToken});
+            return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             console.log(error);
             return res.status(error.statusCode).json({error: error.message});

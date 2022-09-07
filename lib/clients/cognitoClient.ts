@@ -27,7 +27,7 @@ class CognitoClient {
         this.cognitoIsp = new CognitoIdentityServiceProvider({region: process.env.AWS_REGION});
     }
 
-    public async signUp({email, address, gender, given_name, family_name, birthdate, password}): Promise<boolean> {
+    public async signUp({email, address, gender, given_name, family_name, birthdate, password}): Promise<{message: string}> {
         const params: SignUpRequest = {
             ClientId: process.env.COGNITO_CLIENT_ID || '',
             Username: email,
@@ -42,8 +42,8 @@ class CognitoClient {
             ],
         };
         try {
-            const cognitoRes = await this.cognitoIsp.signUp(params).promise();
-            return cognitoRes.UserConfirmed;
+            await this.cognitoIsp.signUp(params).promise();
+            return {message: 'Successfully signed up new user, confirm user'};
         } catch (error: any) {
             console.error('Error while signing up', error);
             if (error.code === 'UsernameExistsException') {
@@ -53,7 +53,7 @@ class CognitoClient {
         }
     }
 
-    public async confirmSignUp({email, code}: {email: string; code: string}): Promise<void> {
+    public async confirmSignUp({email, code}: {email: string; code: string}): Promise<{message: string}> {
         const params: ConfirmSignUpRequest = {
             ClientId: `${process.env.COGNITO_CLIENT_ID}`,
             Username: email,
@@ -61,6 +61,7 @@ class CognitoClient {
         };
         try {
             await this.cognitoIsp.confirmSignUp(params).promise();
+            return {message: 'Successfully confirmed signup'};
         } catch (error: any) {
             console.error('Error while confirming signup', error);
             if (error.code === 'CodeMismatchException' || error.code === 'NotAuthorizedException') {
@@ -100,13 +101,19 @@ class CognitoClient {
         }
     }
 
-    public async updateUserAttributes({accessToken, attributes}: {accessToken: string; attributes: {Name: string; Value: string}[]}): Promise<void> {
+    public async updateUserAttributes({accessToken, attributes}: {accessToken: string; attributes: {Name: string; Value: string}[]}): Promise<any> {
         const params: UpdateUserAttributesRequest = {
             AccessToken: accessToken,
             UserAttributes: attributes,
         };
         try {
             await this.cognitoIsp.updateUserAttributes(params).promise();
+            const cognitoRes = await this.cognitoIsp.getUser({ AccessToken: accessToken }).promise();
+            const user = cognitoRes.UserAttributes.reduce((result, curr) => {
+                result[curr.Name] = curr.Value;
+                return result;
+            }, {});
+            return user;
         } catch (error: any) {
             console.error('Error while updating user attributes', error);
             if (error.code === 'UnexpectedParameter' || error.code === 'InvalidParameterException' || error.code === 'NotAuthorizedException') {
@@ -118,20 +125,21 @@ class CognitoClient {
         }
     }
 
-    public async forgotPassword({email}: {email: string}): Promise<void> {
+    public async forgotPassword({email}: {email: string}): Promise<{message: string}> {
         const params: ForgotPasswordRequest = {
             ClientId: `${process.env.COGNITO_CLIENT_ID}`,
             Username: email,
         };
         try {
             await this.cognitoIsp.forgotPassword(params).promise();
+            return {message: 'Successfully called forgot password'};
         } catch (error: any) {
             console.error('Error while calling forgotPassword', error);
             throw InternalServiceErrorException('Error while calling forgotPassword');
         }
     }
 
-    public async confirmForgotPassword({email, password, code}: {email: string; password: string; code: string}): Promise<void> {
+    public async confirmForgotPassword({email, password, code}: {email: string; password: string; code: string}): Promise<{message: string}> {
         const params: ConfirmForgotPasswordRequest = {
             ClientId: `${process.env.COGNITO_CLIENT_ID}`,
             Username: email,
@@ -140,6 +148,7 @@ class CognitoClient {
         };
         try {
             await this.cognitoIsp.confirmForgotPassword(params).promise();
+            return {message: 'Successfully confirmed update password'}
         } catch (error: any) {
             console.error('Error while calling confirmForgotPassword', error);
             if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
@@ -149,12 +158,13 @@ class CognitoClient {
         }
     }
 
-    public async removeAccount({accessToken}: {accessToken: string}): Promise<void> {
+    public async removeAccount({accessToken}: {accessToken: string}): Promise<{message: string}> {
         const params: DeleteUserRequest = {
             AccessToken: accessToken,
         };
         try {
             await this.cognitoIsp.deleteUser(params).promise();
+            return {message: 'Successfully removed account'};
         } catch (error: any) {
             console.error('Error while calling deleteAccount', error);
             if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {

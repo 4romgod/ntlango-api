@@ -32,7 +32,6 @@ class Neo4jClient {
      * @returns
      */
     public formatResponse(resultObj: any) {
-        console.log(resultObj);
         const result: any[] = [];
         if (resultObj.records.length > 0) {
             resultObj.records.map((record: any) => {
