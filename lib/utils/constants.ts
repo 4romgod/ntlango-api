@@ -6,3 +6,7 @@ export enum HttpStatusCode {
     NOT_FOUND = 404,
     INTERNAL_SERVER = 500,
 }
+
+export const REGEX = {
+    ACCESS_TOKEN: /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/,
+};

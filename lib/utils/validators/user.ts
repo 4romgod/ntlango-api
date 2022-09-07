@@ -1,6 +1,7 @@
 import {check, validationResult} from 'express-validator';
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../constants';
+import {REGEX} from '../constants';
 
 const signUp = [
     check('email').isEmail().withMessage('Must be a valid email address'),
@@ -23,7 +24,12 @@ const signIn = [
 ];
 
 const updateUserAttributes = [
-    check('accessToken').notEmpty().withMessage('No accessToken provided').matches('[A-Za-z0-9-_=.]+').withMessage('Invalid accessToken'),
+    check('Authorization')
+        .notEmpty()
+        .withMessage('No Authorization headers provided')
+        .matches(REGEX.ACCESS_TOKEN)
+        .withMessage('Invalid access token provided'),
+
     check('attributes').notEmpty().withMessage('Provide Atleast One Attribute'),
     check('attributes.*.Name').exists().notEmpty().withMessage('Provide a valid "Name" parameter'),
     check('attributes.*.Value').exists().notEmpty().withMessage('Provide a valid "Value" parameter'),
@@ -38,7 +44,11 @@ const confirmForgotPassword = [
 ];
 
 const removeAccount = [
-    check('accessToken').notEmpty().withMessage('No accessToken provided').matches('[A-Za-z0-9-_=.]+').withMessage('Invalid accessToken'),
+    check('Authorization')
+        .notEmpty()
+        .withMessage('No Authorization headers provided')
+        .matches(REGEX.ACCESS_TOKEN)
+        .withMessage('Invalid access token provided'),
 ];
 
 const isInputValid = (req: Request, res: Response, next: any) => {

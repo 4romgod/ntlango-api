@@ -56,7 +56,8 @@ const userController: IUserController = {
 
     updateUserAttributes: async (req: Request, res: Response) => {
         try {
-            const {accessToken, attributes} = req.body;
+            const {attributes} = req.body;
+            const accessToken = req.headers.authorization || '';
             const cognitoRes = await cognitoClient.updateUserAttributes({accessToken, attributes});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
@@ -89,7 +90,7 @@ const userController: IUserController = {
 
     removeAccount: async (req: Request, res: Response) => {
         try {
-            const {accessToken} = req.body;
+            const accessToken = req.headers.authorization || '';
             await cognitoClient.removeAccount({accessToken});
             return res.status(HttpStatusCode.OK).json({message: 'your account has been successfully deleted'});
         } catch (error: any) {

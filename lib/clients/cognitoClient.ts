@@ -9,7 +9,7 @@ import {
     ConfirmForgotPasswordRequest,
     DeleteUserRequest,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import {InternalServiceErrorException, InvalidArgumentException} from '../utils/exceptions';
+import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException} from '../utils/exceptions';
 import 'dotenv/config';
 
 export interface IUserToken {
@@ -63,9 +63,7 @@ class CognitoClient {
             await this.cognitoIsp.confirmSignUp(params).promise();
         } catch (error: any) {
             console.error('Error while confirming signup', error);
-            if (error.code === 'CodeMismatchException') {
-                throw InvalidArgumentException(error.message);
-            } else if (error.code === 'NotAuthorizedException') {
+            if (error.code === 'CodeMismatchException' || error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
             }
             throw InternalServiceErrorException('Failed to confirm signup for new user');
@@ -111,9 +109,10 @@ class CognitoClient {
             await this.cognitoIsp.updateUserAttributes(params).promise();
         } catch (error: any) {
             console.error('Error while updating user attributes', error);
-            console.error('Error while confirming signup', error);
-            if (error.code === 'UnexpectedParameter' || error.code === 'InvalidParameterException') {
+            if (error.code === 'UnexpectedParameter' || error.code === 'InvalidParameterException' || error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
+            } else if (error.code === 'UserNotFoundException') {
+                throw ResourceNotFoundException(error.message);
             }
             throw InternalServiceErrorException('Failed to update user attributes');
         }
@@ -160,6 +159,8 @@ class CognitoClient {
             console.error('Error while calling deleteAccount', error);
             if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
+            } else if (error.code === 'UserNotFoundException') {
+                throw ResourceNotFoundException(error.message);
             }
             throw InternalServiceErrorException('Error while calling deleteAccount');
         }
