@@ -3,7 +3,7 @@ import {Request, Response} from 'express';
 import {HttpStatusCode} from '../constants';
 import {REGEX} from '../constants';
 
-const signUp = [
+const register = [
     check('email').isEmail().withMessage('Must be a valid email address'),
     check('address').notEmpty().withMessage('Must be a valid address'),
     check('gender').notEmpty().withMessage('Must be a valid gender'),
@@ -13,7 +13,7 @@ const signUp = [
     check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
 ];
 
-const confirmSignUp = [
+const verifyEmail = [
     check('email').isEmail().withMessage('Must be a valid email address'),
     check('code').isLength({min: 6}).withMessage('Invalid confirmation code'),
 ];
@@ -23,7 +23,7 @@ const signIn = [
     check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
 ];
 
-const updateUserAttributes = [
+const update = [
     check('Authorization')
         .notEmpty()
         .withMessage('No Authorization headers provided')
@@ -60,10 +60,10 @@ const isInputValid = (req: Request, res: Response, next: any) => {
 };
 
 export default {
-    signUp,
-    confirmSignUp,
+    register,
+    verifyEmail,
     signIn,
-    updateUserAttributes,
+    update,
     forgotPassword,
     confirmForgotPassword,
     removeAccount,

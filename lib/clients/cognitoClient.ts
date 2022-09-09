@@ -27,7 +27,7 @@ class CognitoClient {
         this.cognitoIsp = new CognitoIdentityServiceProvider({region: process.env.AWS_REGION});
     }
 
-    public async signUp({email, address, gender, given_name, family_name, birthdate, password}): Promise<{message: string}> {
+    public async register({email, address, gender, given_name, family_name, birthdate, password}): Promise<{message: string}> {
         const params: SignUpRequest = {
             ClientId: process.env.COGNITO_CLIENT_ID || '',
             Username: email,
@@ -43,17 +43,17 @@ class CognitoClient {
         };
         try {
             await this.cognitoIsp.signUp(params).promise();
-            return {message: 'Successfully signed up new user, confirm user'};
+            return {message: 'Successfully registered, confirm user'};
         } catch (error: any) {
-            console.error('Error while signing up', error);
+            console.error('Error while registering', error);
             if (error.code === 'UsernameExistsException') {
                 throw InvalidArgumentException(error.message);
             }
-            throw InternalServiceErrorException('Failed to signup a new user');
+            throw InternalServiceErrorException('Failed to register');
         }
     }
 
-    public async confirmSignUp({email, code}: {email: string; code: string}): Promise<{message: string}> {
+    public async verifyEmail({email, code}: {email: string; code: string}): Promise<{message: string}> {
         const params: ConfirmSignUpRequest = {
             ClientId: `${process.env.COGNITO_CLIENT_ID}`,
             Username: email,
@@ -61,17 +61,17 @@ class CognitoClient {
         };
         try {
             await this.cognitoIsp.confirmSignUp(params).promise();
-            return {message: 'Successfully confirmed signup'};
+            return {message: 'Successfully verified email'};
         } catch (error: any) {
-            console.error('Error while confirming signup', error);
+            console.error('Error while verifying email', error);
             if (error.code === 'CodeMismatchException' || error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
             }
-            throw InternalServiceErrorException('Failed to confirm signup for new user');
+            throw InternalServiceErrorException('Failed to verify email');
         }
     }
 
-    public async signIn({email, password}: {email: string; password: string}): Promise<IUserToken> {
+    public async login({email, password}: {email: string; password: string}): Promise<IUserToken> {
         const params: InitiateAuthRequest = {
             ClientId: `${process.env.COGNITO_CLIENT_ID}`,
             AuthFlow: 'USER_PASSWORD_AUTH',
@@ -90,14 +90,14 @@ class CognitoClient {
                 tokenType: cognitoRes.AuthenticationResult?.TokenType || '',
             };
         } catch (error: any) {
-            console.error('Error while signing in', error);
+            console.error('Error while logging in', error);
             if (error.code === 'UserNotConfirmedException') {
-                await this.resendConfirmation({email});
-                throw InvalidArgumentException('Confirm your email before signing in');
+                await this.resendVerificationEmail({email});
+                throw InvalidArgumentException('Confirm your email before logging in');
             } else if (error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
             }
-            throw InternalServiceErrorException('Failed to signin an existing user');
+            throw InternalServiceErrorException('Failed to login');
         }
     }
 
@@ -108,7 +108,7 @@ class CognitoClient {
         };
         try {
             await this.cognitoIsp.updateUserAttributes(params).promise();
-            const cognitoRes = await this.cognitoIsp.getUser({ AccessToken: accessToken }).promise();
+            const cognitoRes = await this.cognitoIsp.getUser({AccessToken: accessToken}).promise();
             const user = cognitoRes.UserAttributes.reduce((result, curr) => {
                 result[curr.Name] = curr.Value;
                 return result;
@@ -148,7 +148,7 @@ class CognitoClient {
         };
         try {
             await this.cognitoIsp.confirmForgotPassword(params).promise();
-            return {message: 'Successfully confirmed update password'}
+            return {message: 'Successfully confirmed update password'};
         } catch (error: any) {
             console.error('Error while calling confirmForgotPassword', error);
             if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
@@ -176,7 +176,7 @@ class CognitoClient {
         }
     }
 
-    public async resendConfirmation({email}: {email: string}): Promise<void> {
+    public async resendVerificationEmail({email}: {email: string}): Promise<void> {
         const params: ResendConfirmationCodeRequest = {
             ClientId: `${process.env.COGNITO_CLIENT_ID}`,
             Username: email,
@@ -184,7 +184,7 @@ class CognitoClient {
         try {
             await this.cognitoIsp.resendConfirmationCode(params).promise();
         } catch (error: any) {
-            console.error('Error while resending confirmation', error);
+            console.error('Error while sending verification email', error);
         }
     }
 }

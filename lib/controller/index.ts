@@ -1,4 +1,4 @@
 import healthCheckController from './healthCheck';
-import userController from './user';
+import accountController from './account';
 
-export {healthCheckController, userController};
+export {healthCheckController, accountController};

@@ -1,15 +1,20 @@
 import {Router} from 'express';
-import {userController} from '../controller';
+import {accountController} from '../controller';
 import {userValidator} from '../utils/validators';
 
 const router = Router();
 
-router.post('/users/signup', userValidator.signUp, userValidator.isInputValid, userController.signUp);
-router.post('/users/signup/confirm', userValidator.confirmSignUp, userValidator.isInputValid, userController.confirmSignUp);
-router.post('/users/signin', userController.signIn);
-router.put('/users/updateAttributes', userValidator.updateUserAttributes, userValidator.isInputValid, userController.updateUserAttributes);
-router.put('/users/forgotPassword', userValidator.forgotPassword, userValidator.isInputValid, userController.forgotPassword);
-router.put('/users/forgotPassword/confirm', userValidator.confirmForgotPassword, userValidator.isInputValid, userController.confirmForgotPassword);
-router.delete('/users/remove', userValidator.removeAccount, userValidator.isInputValid, userController.removeAccount);
+router.post('/account/register', userValidator.register, userValidator.isInputValid, accountController.register);
+router.post('/account/register/confirm', userValidator.verifyEmail, userValidator.isInputValid, accountController.verifyEmail);
+router.post('/account/login', accountController.login);
+router.put('/account/update', userValidator.update, userValidator.isInputValid, accountController.update);
+router.put('/account/forgotPassword', userValidator.forgotPassword, userValidator.isInputValid, accountController.forgotPassword);
+router.put(
+    '/account/forgotPassword/confirm',
+    userValidator.confirmForgotPassword,
+    userValidator.isInputValid,
+    accountController.confirmForgotPassword,
+);
+router.delete('/account/remove', userValidator.removeAccount, userValidator.isInputValid, accountController.removeAccount);
 
 export default router;
