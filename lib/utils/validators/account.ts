@@ -1,6 +1,4 @@
-import {check, validationResult} from 'express-validator';
-import {Request, Response} from 'express';
-import {HttpStatusCode} from '../constants';
+import {check} from 'express-validator';
 import {REGEX} from '../constants';
 
 const register = [
@@ -51,14 +49,6 @@ const removeAccount = [
         .withMessage('Invalid access token provided'),
 ];
 
-const isInputValid = (req: Request, res: Response, next: any) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(HttpStatusCode.BAD_REQUEST).json({error: errors.array()[0].msg});
-    }
-    next();
-};
-
 export default {
     register,
     verifyEmail,
@@ -67,5 +57,4 @@ export default {
     forgotPassword,
     confirmForgotPassword,
     removeAccount,
-    isInputValid,
 };

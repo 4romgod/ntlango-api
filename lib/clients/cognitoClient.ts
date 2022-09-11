@@ -10,7 +10,7 @@ import {
     DeleteUserRequest,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException} from '../utils/exceptions';
-import 'dotenv/config';
+import {AWS_REGION, COGNITO_CLIENT_ID} from '../config';
 
 export interface IUserToken {
     accessToken: string;
@@ -24,12 +24,12 @@ class CognitoClient {
     public cognitoIsp: CognitoIdentityServiceProvider;
 
     constructor() {
-        this.cognitoIsp = new CognitoIdentityServiceProvider({region: process.env.AWS_REGION});
+        this.cognitoIsp = new CognitoIdentityServiceProvider({region: AWS_REGION});
     }
 
     public async register({email, address, gender, given_name, family_name, birthdate, password}): Promise<{message: string}> {
         const params: SignUpRequest = {
-            ClientId: process.env.COGNITO_CLIENT_ID || '',
+            ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
             Password: password,
             UserAttributes: [
@@ -55,7 +55,7 @@ class CognitoClient {
 
     public async verifyEmail({email, code}: {email: string; code: string}): Promise<{message: string}> {
         const params: ConfirmSignUpRequest = {
-            ClientId: `${process.env.COGNITO_CLIENT_ID}`,
+            ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
             ConfirmationCode: code,
         };
@@ -73,7 +73,7 @@ class CognitoClient {
 
     public async login({email, password}: {email: string; password: string}): Promise<IUserToken> {
         const params: InitiateAuthRequest = {
-            ClientId: `${process.env.COGNITO_CLIENT_ID}`,
+            ClientId: `${COGNITO_CLIENT_ID}`,
             AuthFlow: 'USER_PASSWORD_AUTH',
             AuthParameters: {
                 USERNAME: email,
@@ -127,7 +127,7 @@ class CognitoClient {
 
     public async forgotPassword({email}: {email: string}): Promise<{message: string}> {
         const params: ForgotPasswordRequest = {
-            ClientId: `${process.env.COGNITO_CLIENT_ID}`,
+            ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
         };
         try {
@@ -141,7 +141,7 @@ class CognitoClient {
 
     public async confirmForgotPassword({email, password, code}: {email: string; password: string; code: string}): Promise<{message: string}> {
         const params: ConfirmForgotPasswordRequest = {
-            ClientId: `${process.env.COGNITO_CLIENT_ID}`,
+            ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
             Password: password,
             ConfirmationCode: code,
@@ -178,7 +178,7 @@ class CognitoClient {
 
     public async resendVerificationEmail({email}: {email: string}): Promise<void> {
         const params: ResendConfirmationCodeRequest = {
-            ClientId: `${process.env.COGNITO_CLIENT_ID}`,
+            ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
         };
         try {

@@ -25,7 +25,7 @@ const userController: IUserController = {
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             console.log(error);
-            return res.status(error.statusCode).json({error: error.message});
+            return res.status(error.statusCode).send({error});
         }
     },
 

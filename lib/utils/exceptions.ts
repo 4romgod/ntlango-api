@@ -12,8 +12,8 @@ export interface NtlangoError extends Error {
  * @param {string} errorMsg - the error message of the HTTP Exception
  * @return {object} Error object
  */
-export const HttpException = (statusCode: number, errorType: string, errorMsg: string): NtlangoError => {
-    const err: NtlangoError = Object.assign(Error(errorMsg), {statusCode, errorType});
+export const HttpException = (statusCode: number, errorType: string, message: string): NtlangoError => {
+    const err: NtlangoError = Object.assign(Error(), {statusCode, errorType, message});
     Error.captureStackTrace(err, HttpException);
     return err;
 };

@@ -1,8 +1,6 @@
 import * as neo4j from 'neo4j-driver';
-import 'dotenv/config';
 import {InternalServiceErrorException} from '../utils/exceptions';
-
-const {NEO4J_URL, NEO4J_USERNAME, NEO4J_PASSWORD} = process.env;
+import {NEO4J_URL, NEO4J_USERNAME, NEO4J_PASSWORD} from '../config';
 
 /**
  * https://medium.com/nirman-tech-blog/crud-operation-using-expressjs-and-neo4j-ccdfcd40ae15
