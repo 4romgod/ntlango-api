@@ -14,7 +14,7 @@ interface IUserController {
 }
 
 const userController: IUserController = {
-    register: async (req: Request, res: Response) => {
+    register: async (req: Request, res: Response, next: any) => {
         try {
             const {email, address, gender, given_name, family_name, birthdate, password} = req.body;
             const cognitoRes = await cognitoClient.register({email, address, gender, given_name, family_name, birthdate, password});
@@ -24,75 +24,68 @@ const userController: IUserController = {
 
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
-            console.log(error);
-            return res.status(error.statusCode).send({error});
+            next(error);
         }
     },
 
-    verifyEmail: async (req: Request, res: Response) => {
+    verifyEmail: async (req: Request, res: Response, next: any) => {
         try {
             const {email, code} = req.body;
             const cognitoRes = await cognitoClient.verifyEmail({email, code});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
-            console.log(error);
-            return res.status(error.statusCode).json({error: error.message});
+            next(error);
         }
     },
 
-    login: async (req: Request, res: Response) => {
+    login: async (req: Request, res: Response, next: any) => {
         try {
             const {email, password} = req.body;
             const cognitoRes = await cognitoClient.login({email, password});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
-            console.log(error);
-            return res.status(error.statusCode).json({error: error.message});
+            next(error);
         }
     },
 
-    update: async (req: Request, res: Response) => {
+    update: async (req: Request, res: Response, next: any) => {
         try {
             const {attributes} = req.body;
             const accessToken = req.headers.authorization || '';
             const cognitoRes = await cognitoClient.updateUserAttributes({accessToken, attributes});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
-            console.log(error);
-            return res.status(error.statusCode).json({error: error.message});
+            next(error);
         }
     },
 
-    forgotPassword: async (req: Request, res: Response) => {
+    forgotPassword: async (req: Request, res: Response, next: any) => {
         try {
             const {email} = req.body;
             const cognitoRes = await cognitoClient.forgotPassword({email});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
-            console.log(error);
-            return res.status(error.statusCode).json({error: error.message});
+            next(error);
         }
     },
 
-    confirmForgotPassword: async (req: Request, res: Response) => {
+    confirmForgotPassword: async (req: Request, res: Response, next: any) => {
         try {
             const {email, password, code} = req.body;
             const cognitoRes = await cognitoClient.confirmForgotPassword({email, password, code});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
-            console.log(error);
-            return res.status(error.statusCode).json({error: error.message});
+            next(error);
         }
     },
 
-    removeAccount: async (req: Request, res: Response) => {
+    removeAccount: async (req: Request, res: Response, next: any) => {
         try {
             const accessToken = req.headers.authorization || '';
             const cognitoRes = await cognitoClient.removeAccount({accessToken});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
-            console.log(error);
-            return res.status(error.statusCode).json({error: error.message});
+            next(error);
         }
     },
 };

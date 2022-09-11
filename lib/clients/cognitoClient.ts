@@ -66,6 +66,8 @@ class CognitoClient {
             console.error('Error while verifying email', error);
             if (error.code === 'CodeMismatchException' || error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
+            } else if (error.code === 'UserNotFoundException') {
+                throw ResourceNotFoundException(error.message);
             }
             throw InternalServiceErrorException('Failed to verify email');
         }
@@ -96,6 +98,8 @@ class CognitoClient {
                 throw InvalidArgumentException('Confirm your email before logging in');
             } else if (error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
+            } else if (error.code === 'UserNotFoundException') {
+                throw ResourceNotFoundException(error.message);
             }
             throw InternalServiceErrorException('Failed to login');
         }
@@ -135,6 +139,11 @@ class CognitoClient {
             return {message: 'Successfully called forgot password'};
         } catch (error: any) {
             console.error('Error while calling forgotPassword', error);
+            if (error.code === 'UnexpectedParameter' || error.code === 'InvalidParameterException' || error.code === 'NotAuthorizedException') {
+                throw InvalidArgumentException(error.message);
+            } else if (error.code === 'UserNotFoundException') {
+                throw ResourceNotFoundException(error.message);
+            }
             throw InternalServiceErrorException('Error while calling forgotPassword');
         }
     }
@@ -153,6 +162,8 @@ class CognitoClient {
             console.error('Error while calling confirmForgotPassword', error);
             if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
+            } else if (error.code === 'UserNotFoundException') {
+                throw ResourceNotFoundException(error.message);
             }
             throw InternalServiceErrorException('Error while calling confirmForgotPassword');
         }
