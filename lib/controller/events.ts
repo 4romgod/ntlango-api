@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import express from 'express';
 import {HttpStatusCode} from '../utils/constants';
-import {neo4jClient} from '../clients';
+import {eventsDao} from '../dao';
 
 interface IEventController {
     create: express.Handler;
@@ -12,17 +12,12 @@ interface IEventController {
     query: express.Handler;
 }
 
-const eventController: IEventController = {
+const eventsController: IEventController = {
     create: async (req: Request, res: Response, next: any) => {
         try {
             const {title, description, startDate, startTime, endDate, endTime} = req.body;
-            const eventId = 'someRandomId';
-            const query = `CREATE (event:EVENT {
-                eventId: $eventId, title: $title, description: $description, startDate: $startDate, startTime: $startTime, endDate: $endDate, endTime: $endTime
-            }) RETURN event`;
-            const neo4jRes = await neo4jClient.executeCypherQuery(query, {eventId, title, description, startDate, startTime, endDate, endTime});
-            console.log(neo4jRes);
-            return res.status(HttpStatusCode.OK).json({message: 'You have successfully created an event'});
+            const daoRes = await eventsDao.createEvent({title, description, startDate, startTime, endDate, endTime});
+            return res.status(HttpStatusCode.OK).json(daoRes);
         } catch (error: any) {
             next(error);
         }
@@ -72,4 +67,4 @@ const eventController: IEventController = {
     },
 };
 
-export default eventController;
+export default eventsController;

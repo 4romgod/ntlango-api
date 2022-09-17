@@ -1,7 +1,8 @@
 import {Request, Response} from 'express';
 import express from 'express';
-import {cognitoClient, neo4jClient} from '../clients';
+import {cognitoClient} from '../clients';
 import {HttpStatusCode} from '../utils/constants';
+import {userDao} from '../dao';
 
 interface IAccountController {
     register: express.Handler;
@@ -18,11 +19,9 @@ const accountController: IAccountController = {
         try {
             const {email, address, gender, given_name, family_name, birthdate, password} = req.body;
             const cognitoRes = await cognitoClient.register({email, address, gender, given_name, family_name, birthdate, password});
+            const daoRes = await userDao.createUser({email, address, gender, given_name, family_name, birthdate, password});
 
-            const query = `CREATE (u:USERS {given_name: $given_name, family_name: $family_name, email: $email, gender: $gender, birthdate: $birthdate}) RETURN u`;
-            await neo4jClient.executeCypherQuery(query, {email, address, gender, given_name, family_name, birthdate});
-
-            return res.status(HttpStatusCode.OK).json(cognitoRes);
+            return res.status(HttpStatusCode.OK).json(daoRes);
         } catch (error: any) {
             next(error);
         }

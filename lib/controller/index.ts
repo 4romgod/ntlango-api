@@ -1,5 +1,5 @@
 import healthCheckController from './healthCheck';
 import accountController from './account';
-import eventController from './events';
+import eventsController from './events';
 
-export {healthCheckController, accountController, eventController};
+export {healthCheckController, accountController, eventsController};
