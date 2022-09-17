@@ -1,5 +1,4 @@
-import {CognitoIdentityServiceProvider} from 'aws-sdk';
-import {
+import CognitoIdentityServiceProvider, {
     ConfirmSignUpRequest,
     InitiateAuthRequest,
     SignUpRequest,
@@ -24,7 +23,13 @@ class CognitoClient {
     public cognitoIsp: CognitoIdentityServiceProvider;
 
     constructor() {
-        this.cognitoIsp = new CognitoIdentityServiceProvider({region: AWS_REGION});
+        this.cognitoIsp = new CognitoIdentityServiceProvider({
+            region: AWS_REGION,
+            maxRetries: 2,
+            retryDelayOptions: {
+                base: 150
+            }
+        });
     }
 
     public async register({email, address, gender, given_name, family_name, birthdate, password}): Promise<{message: string}> {
@@ -200,4 +205,4 @@ class CognitoClient {
     }
 }
 
-export default new CognitoClient();
+export default CognitoClient;

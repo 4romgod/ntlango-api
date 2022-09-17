@@ -16,7 +16,9 @@ class Neo4jClient {
 
     public async executeCypherQuery(statement: string, params = {}) {
         try {
-            const result = await this.neo4jSession.run(statement, params);
+            const result = await this.neo4jSession.run(statement, params, {
+                timeout: 150,
+            });
             return this.formatResponse(result);
         } catch (error) {
             console.log('Error while calling neo4j', error);
@@ -40,4 +42,4 @@ class Neo4jClient {
     }
 }
 
-export default new Neo4jClient();
+export default Neo4jClient;
