@@ -2,6 +2,7 @@ import {validationResult} from 'express-validator';
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../constants';
 import accountValidator from './account';
+import eventsValidator from './events';
 import {InvalidArgumentException} from '../exceptions';
 
 const isInputValid = (req: Request, res: Response, next: any) => {
@@ -13,4 +14,4 @@ const isInputValid = (req: Request, res: Response, next: any) => {
     next();
 };
 
-export {accountValidator, isInputValid};
+export {accountValidator, eventsValidator, isInputValid};

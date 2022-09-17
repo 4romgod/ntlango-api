@@ -27,8 +27,8 @@ class CognitoClient {
             region: AWS_REGION,
             maxRetries: 2,
             retryDelayOptions: {
-                base: 150
-            }
+                base: 150,
+            },
         });
     }
 

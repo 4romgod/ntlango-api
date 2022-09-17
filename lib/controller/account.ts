@@ -3,7 +3,7 @@ import express from 'express';
 import {cognitoClient, neo4jClient} from '../clients';
 import {HttpStatusCode} from '../utils/constants';
 
-interface IUserController {
+interface IAccountController {
     register: express.Handler;
     login: express.Handler;
     verifyEmail: express.Handler;
@@ -13,7 +13,7 @@ interface IUserController {
     removeAccount: express.Handler;
 }
 
-const userController: IUserController = {
+const accountController: IAccountController = {
     register: async (req: Request, res: Response, next: any) => {
         try {
             const {email, address, gender, given_name, family_name, birthdate, password} = req.body;
@@ -90,4 +90,4 @@ const userController: IUserController = {
     },
 };
 
-export default userController;
+export default accountController;

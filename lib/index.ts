@@ -2,11 +2,10 @@ import express, {Express} from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import accountRouter from './router/account';
-import healthCheckRouter from './router/healthCheck';
-import * as cors from 'cors';
+import {healthCheckRouter, accountRouter, eventsRouter} from './router';
 import {CLIENT_URL, API_PORT, API_DOMAIN} from './config';
 import {errorHandler, invalidPathHandler} from './utils/middleware';
+import * as cors from 'cors';
 
 dotenv.config();
 
@@ -19,6 +18,7 @@ app.use(cors.default({origin: `${CLIENT_URL}`, credentials: true}));
 
 app.use('/api/v1', accountRouter);
 app.use('/api/v1', healthCheckRouter);
+app.use('/api/v1', eventsRouter);
 
 app.use(errorHandler);
 app.use(invalidPathHandler);
