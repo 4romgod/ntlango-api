@@ -1,0 +1,9 @@
+#!/bin/bash
+
+generate_client() {
+    MODEL="node_modules/ntlango-model/build/openapi/ntlango.api.yaml"
+    ADDITIONAL_PROPS="ngVersion=6.1.7,npmName=restClient,supportsES6=true,npmVersion=6.9.0,useSingleRequestParameter=true"
+    echo "Generating Openapi Client..." && (openapi-generator-cli generate -i $MODEL -g typescript-axios -o generated-client --additional-properties=$ADDITIONAL_PROPS)
+}
+
+generate_client

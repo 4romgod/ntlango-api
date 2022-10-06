@@ -10,6 +10,7 @@ import CognitoIdentityServiceProvider, {
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException} from '../utils/exceptions';
 import {AWS_REGION, COGNITO_CLIENT_ID} from '../config';
+import {RegisterInput, LoginInput, VerifyEmailInput, ForgotPasswordInput, ConfirmForgotPasswordInput} from '../../generated-client';
 
 export interface IUserToken {
     accessToken: string;
@@ -32,7 +33,9 @@ class CognitoClient {
         });
     }
 
-    public async register({email, address, gender, given_name, family_name, birthdate, password}): Promise<{message: string}> {
+    public async register(user: RegisterInput): Promise<{message: string}> {
+        const {email, address, gender, given_name, family_name, birthdate, password} = user;
+
         const params: SignUpRequest = {
             ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
@@ -58,7 +61,8 @@ class CognitoClient {
         }
     }
 
-    public async verifyEmail({email, code}: {email: string; code: string}): Promise<{message: string}> {
+    public async verifyEmail(input: VerifyEmailInput): Promise<{message: string}> {
+        const {email, code} = input;
         const params: ConfirmSignUpRequest = {
             ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
@@ -78,7 +82,9 @@ class CognitoClient {
         }
     }
 
-    public async login({email, password}: {email: string; password: string}): Promise<IUserToken> {
+    public async login(input: LoginInput): Promise<IUserToken> {
+        const {email, password} = input;
+
         const params: InitiateAuthRequest = {
             ClientId: `${COGNITO_CLIENT_ID}`,
             AuthFlow: 'USER_PASSWORD_AUTH',
@@ -134,10 +140,10 @@ class CognitoClient {
         }
     }
 
-    public async forgotPassword({email}: {email: string}): Promise<{message: string}> {
+    public async forgotPassword(input: ForgotPasswordInput): Promise<{message: string}> {
         const params: ForgotPasswordRequest = {
             ClientId: `${COGNITO_CLIENT_ID}`,
-            Username: email,
+            Username: input.email,
         };
         try {
             await this.cognitoIsp.forgotPassword(params).promise();
@@ -153,7 +159,9 @@ class CognitoClient {
         }
     }
 
-    public async confirmForgotPassword({email, password, code}: {email: string; password: string; code: string}): Promise<{message: string}> {
+    public async confirmForgotPassword(input: ConfirmForgotPasswordInput): Promise<{message: string}> {
+        const {email, password, code} = input;
+
         const params: ConfirmForgotPasswordRequest = {
             ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
