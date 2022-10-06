@@ -10,9 +10,7 @@
     "test": "nyc mocha",
     "watch": "nyc mocha",
     "lint": "npm run prettier-format && eslint lib/* --ext .ts --fix",
-    "prettier-format": "npm run prettier-format-lib && npm run prettier-format-test",
-    "prettier-format-lib": "prettier --no-error-on-unmatched-pattern --config .prettierrc.json 'lib/**/*.{js,ts}' --write",
-    "prettier-format-test": "prettier --no-error-on-unmatched-pattern --config .prettierrc.json 'test/**/*.{js,ts}' --write"
+    "prettier-format": "prettier --no-error-on-unmatched-pattern --config .prettierrc.json 'lib/**/*.{js,ts}' 'test/**/*.{js,ts}' --write"
   },
   "keywords": [],
   "author": "",
