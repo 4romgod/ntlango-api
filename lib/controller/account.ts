@@ -12,6 +12,7 @@ interface IAccountController {
     forgotPassword: express.Handler;
     confirmForgotPassword: express.Handler;
     removeAccount: express.Handler;
+    adminRemoveAccount: express.Handler;
 }
 
 const accountController: IAccountController = {
@@ -82,6 +83,17 @@ const accountController: IAccountController = {
         try {
             const accessToken = req.headers.authorization || '';
             const cognitoRes = await cognitoClient.removeAccount({accessToken});
+            return res.status(HttpStatusCode.OK).json(cognitoRes);
+        } catch (error: any) {
+            next(error);
+        }
+    },
+
+    adminRemoveAccount: async (req: Request, res: Response, next: any) => {
+        try {
+            const {username} = req.params;
+            const cognitoRes = await cognitoClient.adminRemoveAccount({username});
+            const neo4jRes = await userDao.removeUser(username);
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             next(error);

@@ -11,5 +11,6 @@ router.put('/account/update', accountValidator.update, isInputValid, accountCont
 router.put('/account/forgotPassword', accountValidator.forgotPassword, isInputValid, accountController.forgotPassword);
 router.put('/account/forgotPassword/confirm', accountValidator.confirmForgotPassword, isInputValid, accountController.confirmForgotPassword);
 router.delete('/account/remove', accountValidator.removeAccount, isInputValid, accountController.removeAccount);
+router.delete('/account/remove/:username', accountValidator.adminRemoveAccount, isInputValid, accountController.adminRemoveAccount);
 
 export default router;

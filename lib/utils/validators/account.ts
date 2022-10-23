@@ -49,6 +49,8 @@ const removeAccount = [
         .withMessage('Invalid access token provided'),
 ];
 
+const adminRemoveAccount = [check('username').notEmpty().withMessage('Provide A Username')];
+
 export default {
     register,
     verifyEmail,
@@ -57,4 +59,5 @@ export default {
     forgotPassword,
     confirmForgotPassword,
     removeAccount,
+    adminRemoveAccount,
 };

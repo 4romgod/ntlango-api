@@ -7,9 +7,10 @@ import CognitoIdentityServiceProvider, {
     ForgotPasswordRequest,
     ConfirmForgotPasswordRequest,
     DeleteUserRequest,
+    AdminDeleteUserRequest,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException} from '../utils/exceptions';
-import {AWS_REGION, COGNITO_CLIENT_ID} from '../config';
+import {AWS_REGION, COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID} from '../config';
 import {RegisterInput, LoginInput, VerifyEmailInput, ForgotPasswordInput, ConfirmForgotPasswordInput} from '../../generated-client';
 
 export interface IUserToken {
@@ -190,7 +191,26 @@ class CognitoClient {
             await this.cognitoIsp.deleteUser(params).promise();
             return {message: 'Successfully removed account'};
         } catch (error: any) {
-            console.error('Error while calling deleteAccount', error);
+            console.error('Error while calling deleteUser', error);
+            if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
+                throw InvalidArgumentException(error.message);
+            } else if (error.code === 'UserNotFoundException') {
+                throw ResourceNotFoundException(error.message);
+            }
+            throw InternalServiceErrorException('Error while calling deleteAccount');
+        }
+    }
+
+    public async adminRemoveAccount({username}: {username: string}): Promise<{message: string}> {
+        const params: AdminDeleteUserRequest = {
+            UserPoolId: `${COGNITO_USER_POOL_ID}`,
+            Username: username,
+        };
+        try {
+            await this.cognitoIsp.adminDeleteUser(params).promise();
+            return {message: 'Successfully removed account'};
+        } catch (error: any) {
+            console.error('Error while calling adminDeleteUser', error);
             if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
             } else if (error.code === 'UserNotFoundException') {

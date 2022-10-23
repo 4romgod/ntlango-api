@@ -7,6 +7,13 @@ const createUser = async (user: any) => {
     return neo4jRes;
 };
 
+const removeUser = async (username: string) => {
+    const query = `MATCH (n:USERS {email: $username}) DETACH DELETE n`;
+    const neo4jRes = await neo4jClient.executeCypherQuery(query, {username});
+    return neo4jRes;
+};
+
 export default {
     createUser,
+    removeUser,
 };
