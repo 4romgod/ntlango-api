@@ -21,7 +21,7 @@ const accountController: IAccountController = {
             const cognitoRes = await cognitoClient.register({email, address, gender, given_name, family_name, birthdate, password});
             const daoRes = await userDao.createUser({email, address, gender, given_name, family_name, birthdate, password});
 
-            return res.status(HttpStatusCode.OK).json(daoRes);
+            return res.status(HttpStatusCode.OK).json(daoRes[0]);
         } catch (error: any) {
             next(error);
         }

@@ -62,7 +62,7 @@ class CognitoClient {
         };
         try {
             await this.cognitoIsp.signUp(params).promise();
-            return {message: 'Successfully registered, confirm user'};
+            return {message: 'Successfully registered, confirm user'};  // TODO update function to return the new user
         } catch (error: any) {
             console.error('Error while registering', error);
             if (error.statusCode === 400) {

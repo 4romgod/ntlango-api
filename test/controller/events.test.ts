@@ -1,14 +1,16 @@
-import chai, {expect} from 'chai';
+import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
-import {describe} from 'mocha';
+import { describe } from 'mocha';
 import sinon from 'sinon';
 import server from '../../lib';
-import {HttpStatusCode} from '../../lib/utils/constants';
-import {eventsDao} from '../../lib/dao';
+import { HttpStatusCode } from '../../lib/utils/constants';
+import { eventsDao } from '../../lib/dao';
 
 chai.use(chaiHttp);
 
 describe('events', () => {
+    let sandbox = sinon.createSandbox();
+
     const mockEvent = {
         title: 'mockTitle',
         description: 'mock description',
@@ -19,9 +21,12 @@ describe('events', () => {
     };
 
     describe('POST /events', () => {
-        sinon.stub(eventsDao, 'createEvent').returns(Promise.resolve([{...mockEvent, eventId: 'someRandomId'}]));
+        afterEach(() => {
+            sandbox.restore();
+        });
 
-        it('it should create an events and return an event object', (done) => {
+        it('it should create an events and return an event object when called with valid input', (done) => {
+            sandbox.stub(eventsDao, 'createEvent').returns(Promise.resolve([{ ...mockEvent, eventId: 'someRandomId' }]));
             chai.request(server)
                 .post('/api/v1/events')
                 .send(mockEvent)
@@ -29,6 +34,17 @@ describe('events', () => {
                     expect(res.status).to.be.equal(HttpStatusCode.OK);
                     expect(res.body).to.be.a('object');
                     expect(res.body).to.have.property('eventId');
+                    done();
+                });
+        });
+
+        it('it should return InvalidArgumentException when called with invalid input', (done) => {
+            const invalidInput = { ...mockEvent, title: undefined };
+            chai.request(server)
+                .post('/api/v1/events')
+                .send(invalidInput)
+                .end((err, res) => {
+                    expect(res.status).to.be.equal(HttpStatusCode.BAD_REQUEST);
                     done();
                 });
         });
@@ -47,7 +63,7 @@ describe('events', () => {
     });
 
     describe('GET /events/eventId', () => {
-        it('it should return an event object', (done) => {
+        it('it should return an event object when called with valid input', (done) => {
             const mockEventId = 'mockEventId';
             chai.request(server)
                 .get(`/api/v1/events/${mockEventId}`)
@@ -60,7 +76,7 @@ describe('events', () => {
     });
 
     describe('PUT /events/eventId', () => {
-        it('it should update and return an event object', (done) => {
+        it('it should update and return an event object when called with valid input', (done) => {
             const mockEventId = 'mockEventId';
             chai.request(server)
                 .put(`/api/v1/events/${mockEventId}`)
@@ -74,7 +90,7 @@ describe('events', () => {
     });
 
     describe('DELETE /events/eventId', () => {
-        it('it should delete and return an event object', (done) => {
+        it('it should delete and return an event object when called with valid input', (done) => {
             const mockEventId = 'mockEventId';
             chai.request(server)
                 .delete(`/api/v1/events/${mockEventId}`)

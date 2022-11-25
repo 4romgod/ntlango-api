@@ -6,10 +6,12 @@ import eventsValidator from './events';
 import {InvalidArgumentException} from '../exceptions';
 
 const isInputValid = (req: Request, res: Response, next: any) => {
+    console.log('validating input...');
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const error = InvalidArgumentException(errors.array()[0].msg);
-        return res.status(HttpStatusCode.BAD_REQUEST).send({error});
+        console.log(error);
+        return res.status(HttpStatusCode.BAD_REQUEST).json(error);
     }
     next();
 };
