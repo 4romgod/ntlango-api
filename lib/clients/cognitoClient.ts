@@ -1,5 +1,4 @@
 import CognitoIdentityServiceProvider, {
-    ConfirmSignUpRequest,
     InitiateAuthRequest,
     SignUpRequest,
     ResendConfirmationCodeRequest,
@@ -9,10 +8,16 @@ import CognitoIdentityServiceProvider, {
     DeleteUserRequest,
     AdminDeleteUserRequest,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException, UnauthenticatedException, UnauthorizedException} from '../utils/exceptions';
+import {
+    InternalServiceErrorException,
+    InvalidArgumentException,
+    ResourceNotFoundException,
+    UnauthenticatedException,
+    UnauthorizedException,
+} from '../utils/exceptions';
 import {AWS_REGION, COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID} from '../config';
-import {RegisterInput, LoginInput, VerifyEmailInput, ForgotPasswordInput, ConfirmForgotPasswordInput} from '../../generated-client';
-import { TIMEOUT_MILLI, NUMBER_OF_RETRIES, CONNECTION_TIMEOUT_MILLI } from '../utils/constants';
+import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput} from '@ntlango/client'; //TODO install @ntlango/client rather using npm links
+import {TIMEOUT_MILLI, NUMBER_OF_RETRIES, CONNECTION_TIMEOUT_MILLI} from '../utils/constants';
 
 export interface IUserToken {
     accessToken: string;
@@ -35,7 +40,7 @@ class CognitoClient {
             httpOptions: {
                 connectTimeout: CONNECTION_TIMEOUT_MILLI,
                 timeout: TIMEOUT_MILLI,
-            }
+            },
         });
     }
 

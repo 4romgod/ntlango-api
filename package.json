@@ -1,14 +1,13 @@
 {
-  "name": "ntlango-api",
+  "name": "@ntlango/api",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "npm run gen-client && npm run lint && npm run test && tsc --pretty",
+    "build": "npm run lint && npm run test && tsc --pretty",
     "clean": "rm -rf generated-client dist coverage .nyc_output",
     "start": "npm run build && node --trace-warnings dist/index.js",
     "dev": "nodemon ./lib/index.ts",
-    "gen-client": "source ./scripts/generate-client",
     "test": "nyc mocha",
     "watch": "nyc mocha",
     "lint": "npm run prettier-format && eslint lib/* --ext .ts --fix",
@@ -36,15 +35,13 @@
     "produce-source-map": true
   },
   "dependencies": {
-    "@openapitools/openapi-generator-cli": "^2.5.2",
     "aws-sdk": "^2.1209.0",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-validator": "^6.14.2",
-    "neo4j-driver": "^4.4.7",
-    "ntlango-model": "^1.0.5"
+    "neo4j-driver": "^4.4.7"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
