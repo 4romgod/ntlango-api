@@ -9,9 +9,10 @@ import CognitoIdentityServiceProvider, {
     DeleteUserRequest,
     AdminDeleteUserRequest,
 } from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException} from '../utils/exceptions';
+import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException, UnauthenticatedException, UnauthorizedException} from '../utils/exceptions';
 import {AWS_REGION, COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID} from '../config';
 import {RegisterInput, LoginInput, VerifyEmailInput, ForgotPasswordInput, ConfirmForgotPasswordInput} from '../../generated-client';
+import { TIMEOUT_MILLI, NUMBER_OF_RETRIES, CONNECTION_TIMEOUT_MILLI } from '../utils/constants';
 
 export interface IUserToken {
     accessToken: string;
@@ -27,10 +28,14 @@ class CognitoClient {
     constructor() {
         this.cognitoIsp = new CognitoIdentityServiceProvider({
             region: AWS_REGION,
-            maxRetries: 2,
+            maxRetries: NUMBER_OF_RETRIES,
             retryDelayOptions: {
                 base: 150,
             },
+            httpOptions: {
+                connectTimeout: CONNECTION_TIMEOUT_MILLI,
+                timeout: TIMEOUT_MILLI,
+            }
         });
     }
 
@@ -43,11 +48,11 @@ class CognitoClient {
             Password: password,
             UserAttributes: [
                 {Name: 'email', Value: email},
-                {Name: 'address', Value: address},
-                {Name: 'gender', Value: gender},
                 {Name: 'given_name', Value: given_name},
                 {Name: 'family_name', Value: family_name},
                 {Name: 'birthdate', Value: birthdate},
+                {Name: 'gender', Value: gender},
+                {Name: 'address', Value: address},
             ],
         };
         try {
@@ -55,31 +60,14 @@ class CognitoClient {
             return {message: 'Successfully registered, confirm user'};
         } catch (error: any) {
             console.error('Error while registering', error);
-            if (error.code === 'UsernameExistsException') {
+            if (error.statusCode === 400) {
                 throw InvalidArgumentException(error.message);
+            } else if (error.statusCode === 401) {
+                throw UnauthenticatedException(error.message);
+            } else if (error.statusCode === 403) {
+                throw UnauthorizedException(error.message);
             }
             throw InternalServiceErrorException('Failed to register');
-        }
-    }
-
-    public async verifyEmail(input: VerifyEmailInput): Promise<{message: string}> {
-        const {email, code} = input;
-        const params: ConfirmSignUpRequest = {
-            ClientId: `${COGNITO_CLIENT_ID}`,
-            Username: email,
-            ConfirmationCode: code,
-        };
-        try {
-            await this.cognitoIsp.confirmSignUp(params).promise();
-            return {message: 'Successfully verified email'};
-        } catch (error: any) {
-            console.error('Error while verifying email', error);
-            if (error.code === 'CodeMismatchException' || error.code === 'NotAuthorizedException') {
-                throw InvalidArgumentException(error.message);
-            } else if (error.code === 'UserNotFoundException') {
-                throw ResourceNotFoundException(error.message);
-            }
-            throw InternalServiceErrorException('Failed to verify email');
         }
     }
 

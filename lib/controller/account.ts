@@ -7,7 +7,6 @@ import {userDao} from '../dao';
 interface IAccountController {
     register: express.Handler;
     login: express.Handler;
-    verifyEmail: express.Handler;
     update: express.Handler;
     forgotPassword: express.Handler;
     confirmForgotPassword: express.Handler;
@@ -23,16 +22,6 @@ const accountController: IAccountController = {
             const daoRes = await userDao.createUser({email, address, gender, given_name, family_name, birthdate, password});
 
             return res.status(HttpStatusCode.OK).json(daoRes);
-        } catch (error: any) {
-            next(error);
-        }
-    },
-
-    verifyEmail: async (req: Request, res: Response, next: any) => {
-        try {
-            const {email, code} = req.body;
-            const cognitoRes = await cognitoClient.verifyEmail({email, code});
-            return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             next(error);
         }

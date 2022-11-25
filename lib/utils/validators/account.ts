@@ -11,11 +11,6 @@ const register = [
     check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
 ];
 
-const verifyEmail = [
-    check('email').isEmail().withMessage('Must be a valid email address'),
-    check('code').isLength({min: 6}).withMessage('Invalid confirmation code'),
-];
-
 const signIn = [
     check('email').isEmail().withMessage('Must be a valid email address'),
     check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
@@ -53,7 +48,6 @@ const adminRemoveAccount = [check('username').notEmpty().withMessage('Provide A 
 
 export default {
     register,
-    verifyEmail,
     signIn,
     update,
     forgotPassword,

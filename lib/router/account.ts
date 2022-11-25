@@ -5,7 +5,6 @@ import {accountValidator, isInputValid} from '../utils/validators';
 const router = Router();
 
 router.post('/account/register', accountValidator.register, isInputValid, accountController.register);
-router.post('/account/register/confirm', accountValidator.verifyEmail, isInputValid, accountController.verifyEmail);
 router.post('/account/login', accountController.login);
 router.put('/account/update', accountValidator.update, isInputValid, accountController.update);
 router.put('/account/forgotPassword', accountValidator.forgotPassword, isInputValid, accountController.forgotPassword);
