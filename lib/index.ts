@@ -26,3 +26,5 @@ app.use(invalidPathHandler);
 app.listen(API_PORT, () => {
     console.log(`⚡️[server]: Server is running at ${API_DOMAIN}:${API_PORT}`);
 });
+
+export default app;

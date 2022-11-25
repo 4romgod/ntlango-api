@@ -8,7 +8,7 @@
     "clean": "rm -rf generated-client dist coverage .nyc_output",
     "start": "npm run build && node --trace-warnings dist/index.js",
     "dev": "nodemon ./lib/index.ts",
-    "test": "nyc mocha",
+    "test": "nyc mocha --exit",
     "watch": "nyc mocha",
     "lint": "npm run prettier-format && eslint lib/* --ext .ts --fix",
     "prettier-format": "prettier --no-error-on-unmatched-pattern --config .prettierrc.json 'lib/**/*.{js,ts}' 'test/**/*.{js,ts}' --write"
@@ -57,6 +57,7 @@
     "@typescript-eslint/parser": "^5.30.4",
     "aws-sdk-mock": "^5.7.0",
     "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",

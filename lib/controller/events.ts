@@ -17,12 +17,13 @@ const eventsController: IEventController = {
         try {
             const {title, description, startDate, startTime, endDate, endTime} = req.body;
             const daoRes = await eventsDao.createEvent({title, description, startDate, startTime, endDate, endTime});
-            return res.status(HttpStatusCode.OK).json(daoRes);
+            return res.status(HttpStatusCode.OK).json(daoRes[0]);
         } catch (error: any) {
             next(error);
         }
     },
 
+    // TODO Update the function to read actual an event
     read: async (req: Request, res: Response, next: any) => {
         try {
             const {eventId} = req.params;
@@ -32,6 +33,7 @@ const eventsController: IEventController = {
         }
     },
 
+    // TODO Update the function to update an actual event
     update: async (req: Request, res: Response, next: any) => {
         try {
             const {eventId} = req.params;
@@ -41,6 +43,7 @@ const eventsController: IEventController = {
         }
     },
 
+    // TODO Update the function to delete an actual event
     delete: async (req: Request, res: Response, next: any) => {
         try {
             const {eventId} = req.params;
