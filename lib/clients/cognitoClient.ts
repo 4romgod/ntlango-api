@@ -1,85 +1,84 @@
-import CognitoIdentityServiceProvider, {
-    InitiateAuthRequest,
-    SignUpRequest,
-    ResendConfirmationCodeRequest,
-    UpdateUserAttributesRequest,
-    ForgotPasswordRequest,
-    ConfirmForgotPasswordRequest,
-    DeleteUserRequest,
-    AdminDeleteUserRequest,
-} from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import {
-    InternalServiceErrorException,
-    InvalidArgumentException,
-    ResourceNotFoundException,
-    UnauthenticatedException,
-    UnauthorizedException,
-} from '../utils/exceptions';
-import {AWS_REGION, COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID} from '../config';
-import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput} from '@ntlango/client'; //TODO install @ntlango/client rather using npm links
-import {TIMEOUT_MILLI, NUMBER_OF_RETRIES, CONNECTION_TIMEOUT_MILLI} from '../utils/constants';
+    CognitoIdentityProviderClient,
+    SignUpCommand,
+    InitiateAuthCommand,
+    GlobalSignOutCommand,
+    UpdateUserAttributesCommand,
+    ForgotPasswordCommand,
+    ConfirmForgotPasswordCommand,
+    AdminDeleteUserCommand,
+    ResendConfirmationCodeCommand,
+    InvalidParameterException,
+    NotAuthorizedException,
+    InitiateAuthCommandInput,
+    SignUpRequest,
+    GetUserCommand,
+    UpdateUserAttributesCommandInput,
+    DeleteUserCommand,
+    UserNotConfirmedException,
+    UserNotFoundException,
+    CodeMismatchException,
+    ExpiredCodeException,
+} from '@aws-sdk/client-cognito-identity-provider';
+import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException, UnauthorizedException} from '../utils/exceptions';
+import {COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID} from '../utils/constants';
+import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput} from '@ntlango/api-client'; //TODO install @ntlango/client rather using npm links
 
 export interface IUserToken {
-    accessToken: string;
-    refreshToken: string;
-    idToken: string;
-    expiresIn: number;
-    tokenType: string;
+    accessToken?: string;
+    refreshToken?: string;
+    idToken?: string;
+    expiresIn?: number;
+    tokenType?: string;
 }
 
 class CognitoClient {
-    public cognitoIsp: CognitoIdentityServiceProvider;
+    public cognitoIsp: CognitoIdentityProviderClient;
 
-    constructor() {
-        this.cognitoIsp = new CognitoIdentityServiceProvider({
-            region: AWS_REGION,
-            maxRetries: NUMBER_OF_RETRIES,
-            retryDelayOptions: {
-                base: 150,
-            },
-            httpOptions: {
-                connectTimeout: CONNECTION_TIMEOUT_MILLI,
-                timeout: TIMEOUT_MILLI,
-            },
-        });
+    constructor(cognitoIsp: CognitoIdentityProviderClient) {
+        console.log('Initializing Cognito Client...');
+        this.cognitoIsp = cognitoIsp;
     }
 
-    public async register(user: RegisterInput): Promise<{message: string}> {
-        const {email, address, gender, given_name, family_name, birthdate, password} = user;
+    public async register(user: RegisterInput): Promise<{message: string; userSub: string}> {
+        const {address, birthdate, email, family_name, gender, given_name, password, phone_number} = user;
 
         const params: SignUpRequest = {
             ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
             Password: password,
             UserAttributes: [
-                {Name: 'email', Value: email},
-                {Name: 'given_name', Value: given_name},
-                {Name: 'family_name', Value: family_name},
-                {Name: 'birthdate', Value: birthdate},
-                {Name: 'gender', Value: gender},
                 {Name: 'address', Value: address},
+                {Name: 'birthdate', Value: birthdate},
+                {Name: 'email', Value: email},
+                {Name: 'family_name', Value: family_name},
+                {Name: 'gender', Value: gender},
+                {Name: 'given_name', Value: given_name},
+                {Name: 'password', Value: password},
+                {Name: 'phone_number', Value: phone_number},
             ],
         };
         try {
-            await this.cognitoIsp.signUp(params).promise();
-            return {message: 'Successfully registered, confirm user'};  // TODO update function to return the new user
+            const {UserSub} = await this.cognitoIsp.send(new SignUpCommand(params));
+            return {
+                userSub: UserSub!,
+                message: 'Successfully registered, confirm user',
+            };
         } catch (error: any) {
             console.error('Error while registering', error);
-            if (error.statusCode === 400) {
+            if (error instanceof InvalidParameterException) {
                 throw InvalidArgumentException(error.message);
-            } else if (error.statusCode === 401) {
-                throw UnauthenticatedException(error.message);
-            } else if (error.statusCode === 403) {
+            } else if (error instanceof NotAuthorizedException) {
                 throw UnauthorizedException(error.message);
             }
-            throw InternalServiceErrorException('Failed to register');
+            throw InternalServiceErrorException(error.message);
         }
     }
 
     public async login(input: LoginInput): Promise<IUserToken> {
         const {email, password} = input;
 
-        const params: InitiateAuthRequest = {
+        const params: InitiateAuthCommandInput = {
             ClientId: `${COGNITO_CLIENT_ID}`,
             AuthFlow: 'USER_PASSWORD_AUTH',
             AuthParameters: {
@@ -88,138 +87,167 @@ class CognitoClient {
             },
         };
         try {
-            const cognitoRes = await this.cognitoIsp.initiateAuth(params).promise();
+            const cognitoRes = await this.cognitoIsp.send(new InitiateAuthCommand(params));
+            const authResult = cognitoRes.AuthenticationResult;
+            if (!authResult) {
+                // TODO this might have to change, pass user to another
+                throw InternalServiceErrorException('Authentication result missing');
+            }
             return {
-                accessToken: cognitoRes.AuthenticationResult?.AccessToken || '',
-                refreshToken: cognitoRes.AuthenticationResult?.RefreshToken || '',
-                idToken: cognitoRes.AuthenticationResult?.IdToken || '',
-                expiresIn: cognitoRes.AuthenticationResult?.ExpiresIn || 0,
-                tokenType: cognitoRes.AuthenticationResult?.TokenType || '',
+                accessToken: authResult.AccessToken,
+                refreshToken: authResult.RefreshToken,
+                idToken: authResult.IdToken,
+                expiresIn: authResult.ExpiresIn,
+                tokenType: authResult.TokenType,
             };
         } catch (error: any) {
             console.error('Error while logging in', error);
-            if (error.code === 'UserNotConfirmedException') {
+            if (error instanceof UserNotConfirmedException) {
                 await this.resendVerificationEmail({email});
-                throw InvalidArgumentException('Confirm your email before logging in');
-            } else if (error.code === 'NotAuthorizedException') {
                 throw InvalidArgumentException(error.message);
-            } else if (error.code === 'UserNotFoundException') {
+            } else if (error instanceof NotAuthorizedException) {
+                throw UnauthorizedException(error.message);
+            } else if (error instanceof UserNotFoundException) {
                 throw ResourceNotFoundException(error.message);
             }
-            throw InternalServiceErrorException('Failed to login');
+            throw InternalServiceErrorException(error.message);
+        }
+    }
+
+    public async logout({accessToken}: {accessToken: string}): Promise<{message: string}> {
+        try {
+            const params = {AccessToken: accessToken};
+            await this.cognitoIsp.send(new GlobalSignOutCommand(params));
+            return {
+                message: 'Successfully logged out',
+            };
+        } catch (error: any) {
+            console.error('Error while logging out', error);
+            throw InternalServiceErrorException(error.message);
         }
     }
 
     public async updateUserAttributes({accessToken, attributes}: {accessToken: string; attributes: {Name: string; Value: string}[]}): Promise<any> {
-        const params: UpdateUserAttributesRequest = {
-            AccessToken: accessToken,
-            UserAttributes: attributes,
-        };
         try {
-            await this.cognitoIsp.updateUserAttributes(params).promise();
-            const cognitoRes = await this.cognitoIsp.getUser({AccessToken: accessToken}).promise();
-            const user = cognitoRes.UserAttributes.reduce((result, curr) => {
-                result[curr.Name] = curr.Value;
+            const updateParams: UpdateUserAttributesCommandInput = {
+                AccessToken: accessToken,
+                UserAttributes: attributes,
+            };
+            await this.cognitoIsp.send(new UpdateUserAttributesCommand(updateParams));
+
+            const cognitoRes = await this.cognitoIsp.send(new GetUserCommand({AccessToken: accessToken}));
+
+            return cognitoRes.UserAttributes?.reduce((result, curr) => {
+                result[curr.Name!] = curr.Value;
                 return result;
             }, {});
-            return user;
         } catch (error: any) {
             console.error('Error while updating user attributes', error);
-            if (error.code === 'UnexpectedParameter' || error.code === 'InvalidParameterException' || error.code === 'NotAuthorizedException') {
+            if (error instanceof InvalidParameterException) {
                 throw InvalidArgumentException(error.message);
-            } else if (error.code === 'UserNotFoundException') {
+            } else if (error instanceof NotAuthorizedException) {
+                throw UnauthorizedException(error.message);
+            } else if (error instanceof UserNotFoundException) {
                 throw ResourceNotFoundException(error.message);
             }
-            throw InternalServiceErrorException('Failed to update user attributes');
+            throw InternalServiceErrorException(error.message);
         }
     }
 
     public async forgotPassword(input: ForgotPasswordInput): Promise<{message: string}> {
-        const params: ForgotPasswordRequest = {
-            ClientId: `${COGNITO_CLIENT_ID}`,
+        const params = {
+            ClientId: COGNITO_CLIENT_ID,
             Username: input.email,
         };
         try {
-            await this.cognitoIsp.forgotPassword(params).promise();
+            await this.cognitoIsp.send(new ForgotPasswordCommand(params));
             return {message: 'Successfully called forgot password'};
         } catch (error: any) {
             console.error('Error while calling forgotPassword', error);
-            if (error.code === 'UnexpectedParameter' || error.code === 'InvalidParameterException' || error.code === 'NotAuthorizedException') {
+            if (error instanceof InvalidParameterException) {
                 throw InvalidArgumentException(error.message);
-            } else if (error.code === 'UserNotFoundException') {
+            } else if (error instanceof NotAuthorizedException) {
+                throw UnauthorizedException(error.message);
+            } else if (error instanceof UserNotFoundException) {
                 throw ResourceNotFoundException(error.message);
             }
-            throw InternalServiceErrorException('Error while calling forgotPassword');
+            throw InternalServiceErrorException(error.message);
         }
     }
 
     public async confirmForgotPassword(input: ConfirmForgotPasswordInput): Promise<{message: string}> {
         const {email, password, code} = input;
 
-        const params: ConfirmForgotPasswordRequest = {
-            ClientId: `${COGNITO_CLIENT_ID}`,
+        const params = {
+            ClientId: COGNITO_CLIENT_ID,
             Username: email,
             Password: password,
             ConfirmationCode: code,
         };
         try {
-            await this.cognitoIsp.confirmForgotPassword(params).promise();
+            await this.cognitoIsp.send(new ConfirmForgotPasswordCommand(params));
             return {message: 'Successfully confirmed update password'};
         } catch (error: any) {
             console.error('Error while calling confirmForgotPassword', error);
-            if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
+            if (error instanceof CodeMismatchException || error instanceof ExpiredCodeException) {
                 throw InvalidArgumentException(error.message);
-            } else if (error.code === 'UserNotFoundException') {
+            } else if (error instanceof NotAuthorizedException) {
+                throw UnauthorizedException(error.message);
+            } else if (error instanceof UserNotFoundException) {
                 throw ResourceNotFoundException(error.message);
             }
-            throw InternalServiceErrorException('Error while calling confirmForgotPassword');
+            throw InternalServiceErrorException(error.message);
         }
     }
 
     public async removeAccount({accessToken}: {accessToken: string}): Promise<{message: string}> {
-        const params: DeleteUserRequest = {
+        const params = {
             AccessToken: accessToken,
         };
         try {
-            await this.cognitoIsp.deleteUser(params).promise();
+            await this.cognitoIsp.send(new DeleteUserCommand(params));
             return {message: 'Successfully removed account'};
         } catch (error: any) {
             console.error('Error while calling deleteUser', error);
-            if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
+            if (error instanceof CodeMismatchException || error instanceof ExpiredCodeException) {
                 throw InvalidArgumentException(error.message);
-            } else if (error.code === 'UserNotFoundException') {
+            } else if (error instanceof NotAuthorizedException) {
+                throw UnauthorizedException(error.message);
+            } else if (error instanceof UserNotFoundException) {
                 throw ResourceNotFoundException(error.message);
             }
-            throw InternalServiceErrorException('Error while calling deleteAccount');
+            throw InternalServiceErrorException(error.message);
         }
     }
 
     public async adminRemoveAccount({username}: {username: string}): Promise<{message: string}> {
-        const params: AdminDeleteUserRequest = {
-            UserPoolId: `${COGNITO_USER_POOL_ID}`,
+        const params = {
+            UserPoolId: COGNITO_USER_POOL_ID,
             Username: username,
         };
         try {
-            await this.cognitoIsp.adminDeleteUser(params).promise();
+            await this.cognitoIsp.send(new AdminDeleteUserCommand(params));
             return {message: 'Successfully removed account'};
         } catch (error: any) {
             console.error('Error while calling adminDeleteUser', error);
-            if (error.code === 'CodeMismatchException' || error.code === 'ExpiredCodeException' || error.code === 'NotAuthorizedException') {
+            if (error instanceof CodeMismatchException || error instanceof ExpiredCodeException) {
                 throw InvalidArgumentException(error.message);
-            } else if (error.code === 'UserNotFoundException') {
+            } else if (error instanceof NotAuthorizedException) {
+                throw UnauthorizedException(error.message);
+            } else if (error instanceof UserNotFoundException) {
                 throw ResourceNotFoundException(error.message);
             }
-            throw InternalServiceErrorException('Error while calling deleteAccount');
+            throw InternalServiceErrorException(error.message);
         }
     }
 
     public async resendVerificationEmail({email}: {email: string}): Promise<void> {
-        const params: ResendConfirmationCodeRequest = {
-            ClientId: `${COGNITO_CLIENT_ID}`,
+        const params = {
+            ClientId: COGNITO_CLIENT_ID,
             Username: email,
         };
         try {
-            await this.cognitoIsp.resendConfirmationCode(params).promise();
+            await this.cognitoIsp.send(new ResendConfirmationCodeCommand(params));
         } catch (error: any) {
             console.error('Error while sending verification email', error);
         }

@@ -1,5 +1,4 @@
-import healthCheckController from './healthCheck';
-import accountController from './account';
-import eventsController from './events';
-
-export {healthCheckController, accountController, eventsController};
+export {default as AuthController} from './auth';
+export {default as EventController} from './events';
+export {default as HealthCheckController} from './healthCheck';
+export {default as ProfileController} from './profile';

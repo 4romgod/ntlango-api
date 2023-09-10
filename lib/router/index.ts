@@ -1,5 +1,6 @@
-import healthCheckRouter from './healthCheck';
-import accountRouter from './account';
+import authRouter from './auth';
 import eventsRouter from './events';
+import healthCheckRouter from './healthCheck';
+import profileRouter from './profile';
 
-export {healthCheckRouter, accountRouter, eventsRouter};
+export {authRouter, eventsRouter, healthCheckRouter, profileRouter};

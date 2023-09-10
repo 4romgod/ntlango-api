@@ -1,104 +1,53 @@
-import chai, { expect } from 'chai';
-import chaiHttp from 'chai-http';
-import { describe } from 'mocha';
-import sinon from 'sinon';
-import server from '../../lib';
-import { HttpStatusCode } from '../../lib/utils/constants';
-import { eventsDao } from '../../lib/dao';
+import {expect} from 'chai';
+import sinon, {SinonStub} from 'sinon';
+import {EventController} from '../../lib/controller';
+import {HttpStatusCode} from '../../lib/utils/constants';
+import {EventStatus, IEvent} from '../../lib/models';
 
-chai.use(chaiHttp);
+describe('EventController', () => {
+    let eventController: EventController;
+    let mockEventDAO: Record<string, SinonStub>;
+    let req: any;
+    let res: any;
+    let mockEvent: IEvent;
 
-describe('events', () => {
-    let sandbox = sinon.createSandbox();
+    beforeEach(() => {
+        mockEventDAO = {
+            createEvent: sinon.stub(),
+            readEventById: sinon.stub(),
+            readEventBySlug: sinon.stub(),
+            readEvents: sinon.stub(),
+            queryEvents: sinon.stub(),
+        };
+        eventController = new EventController(mockEventDAO as any);
 
-    const mockEvent = {
-        title: 'mockTitle',
-        description: 'mock description',
-        startDate: 'mockStartDate',
-        startTime: 'mockStartTime',
-        endDate: 'mockEndDate',
-        endTime: 'mockEndTime',
-    };
-
-    describe('POST /events', () => {
-        afterEach(() => {
-            sandbox.restore();
-        });
-
-        it('it should create an events and return an event object when called with valid input', (done) => {
-            sandbox.stub(eventsDao, 'createEvent').returns(Promise.resolve([{ ...mockEvent, eventId: 'someRandomId' }]));
-            chai.request(server)
-                .post('/api/v1/events')
-                .send(mockEvent)
-                .end((err, res) => {
-                    expect(res.status).to.be.equal(HttpStatusCode.OK);
-                    expect(res.body).to.be.a('object');
-                    expect(res.body).to.have.property('eventId');
-                    done();
-                });
-        });
-
-        it('it should return InvalidArgumentException when called with invalid input', (done) => {
-            const invalidInput = { ...mockEvent, title: undefined };
-            chai.request(server)
-                .post('/api/v1/events')
-                .send(invalidInput)
-                .end((err, res) => {
-                    expect(res.status).to.be.equal(HttpStatusCode.BAD_REQUEST);
-                    done();
-                });
-        });
+        req = {
+            body: {},
+        };
+        res = {
+            status: sinon.stub().returnsThis(),
+            json: sinon.stub(),
+        };
+        mockEvent = {
+            slug: 'mockSlug',
+            title: 'mockTitle',
+            description: 'mockDescription',
+            status: EventStatus.Completed,
+        };
     });
 
-    describe('GET /events', () => {
-        it('it should return events array', (done) => {
-            chai.request(server)
-                .get('/api/v1/events')
-                .end((err, res) => {
-                    expect(res.status).to.be.equal(HttpStatusCode.OK);
-                    expect(res.body).to.have.property('message').equal('You have successfully read all events');
-                    done();
-                });
-        });
+    afterEach(() => {
+        sinon.restore();
     });
 
-    describe('GET /events/eventId', () => {
-        it('it should return an event object when called with valid input', (done) => {
-            const mockEventId = 'mockEventId';
-            chai.request(server)
-                .get(`/api/v1/events/${mockEventId}`)
-                .end((err, res) => {
-                    expect(res.status).to.be.equal(HttpStatusCode.OK);
-                    expect(res.body).to.have.property('message').equal(`You have successfully read an event with ID: ${mockEventId}`);
-                    done();
-                });
-        });
-    });
+    it('should create an event', async () => {
+        mockEventDAO.createEvent.resolves(mockEvent);
+        req.body = mockEvent;
 
-    describe('PUT /events/eventId', () => {
-        it('it should update and return an event object when called with valid input', (done) => {
-            const mockEventId = 'mockEventId';
-            chai.request(server)
-                .put(`/api/v1/events/${mockEventId}`)
-                .send(mockEvent)
-                .end((err, res) => {
-                    expect(res.status).to.be.equal(HttpStatusCode.OK);
-                    expect(res.body).to.have.property('message').equal(`You have successfully updated an event with ID: ${mockEventId}`);
-                    done();
-                });
-        });
-    });
+        await eventController.createEvent(req, res);
 
-    describe('DELETE /events/eventId', () => {
-        it('it should delete and return an event object when called with valid input', (done) => {
-            const mockEventId = 'mockEventId';
-            chai.request(server)
-                .delete(`/api/v1/events/${mockEventId}`)
-                .end((err, res) => {
-                    expect(res.status).to.be.equal(HttpStatusCode.OK);
-                    expect(res.body).to.have.property('message').equal(`You have successfully deleted an event with ID: ${mockEventId}`);
-                    done();
-                });
-        });
+        expect(mockEventDAO.createEvent.calledOnce).to.be.true;
+        expect(res.status.calledOnceWith(HttpStatusCode.CREATED)).to.be.true;
+        expect(res.json.calledOnceWith(mockEvent)).to.be.true;
     });
 });

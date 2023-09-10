@@ -1,5 +1,19 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+export const API_DOMAIN = `${process.env.API_DOMAIN}`;
+export const API_PORT = `${process.env.API_PORT}`;
+export const AWS_REGION = `${process.env.AWS_REGION}`;
+export const CLIENT_URL = `${process.env.CLIENT_URL}`;
+export const COGNITO_USER_POOL_ID = `${process.env.COGNITO_USER_POOL_ID}`;
+export const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID;
+export const COGNITO_IDENTITY_POOL_ID = `${process.env.COGNITO_IDENTITY_POOL_ID}`;
+export const MONGO_DB_URL = `${process.env.MONGO_DB_URL}`;
+
 export enum HttpStatusCode {
     OK = 200,
+    CREATED = 201,
     BAD_REQUEST = 400,
     UNAUTHENTICATED = 401,
     UNAUTHORIZED = 403,

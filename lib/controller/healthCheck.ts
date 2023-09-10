@@ -1,20 +1,28 @@
 import {Request, Response} from 'express';
-import express from 'express';
 import {HttpStatusCode} from '../utils/constants';
+import {MongoDbClient} from '../clients';
 
-interface IHealthCheckController {
-    healthCheck: express.Handler;
+class HealthCheckController {
+    private mongoDbClient: MongoDbClient;
+
+    constructor(mongoDbClient: MongoDbClient) {
+        this.mongoDbClient = mongoDbClient;
+    }
+
+    async healthCheck(req: Request, res: Response) {
+        try {
+            await this.mongoDbClient.connectToDatabase();
+            const healthcheck = {
+                uptime: process.uptime(),
+                message: 'OK',
+                timestamp: Date.now(),
+            };
+            return res.status(HttpStatusCode.OK).json(healthcheck);
+        } catch (error) {
+            console.error('Error during health check:', error);
+            return res.status(HttpStatusCode.INTERNAL_SERVER).json({error: 'Internal Server Error'});
+        }
+    }
 }
 
-const healthCheckController: IHealthCheckController = {
-    healthCheck: async (req: Request, res: Response) => {
-        const healthcheck = {
-            uptime: process.uptime(),
-            message: 'OK',
-            timestamp: Date.now(),
-        };
-        return res.status(HttpStatusCode.OK).json(healthcheck);
-    },
-};
-
-export default healthCheckController;
+export default HealthCheckController;

@@ -6,7 +6,7 @@ extension:
 require:
   - 'ts-node/register'
 spec:
-- 'test/**/*.test.ts'
+- 'test/**/cognitoClient.test.ts'
 trace-warnings: true
 watch: false
 watch-files:

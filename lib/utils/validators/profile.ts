@@ -1,22 +1,7 @@
 import {check} from 'express-validator';
 import {REGEX} from '../constants';
 
-const register = [
-    check('email').isEmail().withMessage('Must be a valid email address'),
-    check('address').notEmpty().withMessage('Must be a valid address'),
-    check('gender').notEmpty().withMessage('Must be a valid gender'),
-    check('given_name').notEmpty().withMessage('given_name is required'),
-    check('family_name').notEmpty().withMessage('family_name is required'),
-    check('birthdate').notEmpty().withMessage('Must be a valid birthdate'),
-    check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
-];
-
-const signIn = [
-    check('email').isEmail().withMessage('Must be a valid email address'),
-    check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
-];
-
-const update = [
+const updateProfile = [
     check('Authorization')
         .notEmpty()
         .withMessage('No Authorization headers provided')
@@ -36,7 +21,7 @@ const confirmForgotPassword = [
     check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
 ];
 
-const removeAccount = [
+const removeProfile = [
     check('Authorization')
         .notEmpty()
         .withMessage('No Authorization headers provided')
@@ -44,14 +29,12 @@ const removeAccount = [
         .withMessage('Invalid access token provided'),
 ];
 
-const adminRemoveAccount = [check('username').notEmpty().withMessage('Provide A Username')];
+const adminRemoveProfile = [check('username').notEmpty().withMessage('Provide A Username')];
 
 export default {
-    register,
-    signIn,
-    update,
+    updateProfile,
     forgotPassword,
     confirmForgotPassword,
-    removeAccount,
-    adminRemoveAccount,
+    removeProfile,
+    adminRemoveProfile,
 };
