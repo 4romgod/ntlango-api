@@ -68,19 +68,17 @@ export type Details = Map<string, any>;
  */
 export type Media = Map<string, any>;
 
-export interface IEvent {
-    _id?: Schema.Types.ObjectId;
-    slug?: string;
+export type CreateEventInput = {
     title: string;
     description: string;
     startDate?: string;
     endDate?: string;
     location?: string;
-    organizers?: Array<Schema.Types.ObjectId>; // Information about the individuals or organizations hosting the event.
+    organizers?: Array<string>; // Information about the individuals or organizations hosting the event.
     eventType?: EventType;
     eventCategory?: EventCategory;
     capacity?: number;
-    rSVPs?: Array<Schema.Types.ObjectId>;
+    rSVPs?: Array<string>;
     tags?: Map<string, any>;
     eventLink?: string; // A link to the event's website or registration page.
     status: EventStatus;
@@ -88,22 +86,45 @@ export interface IEvent {
     additionalDetails?: Details;
     comments?: Comments;
     privacySetting?: PrivacySetting;
-}
+};
+
+export type UpdateEventInput = {
+    title?: string;
+    description?: string;
+    startDate?: string;
+    endDate?: string;
+    location?: string;
+    organizers?: Array<string>;
+    eventType?: EventType;
+    eventCategory?: EventCategory;
+    capacity?: number;
+    rSVPs?: Array<string>;
+    tags?: Map<string, any>;
+    eventLink?: string;
+    status?: EventStatus;
+    media?: Media;
+    additionalDetails?: Details;
+    comments?: Comments;
+    privacySetting?: PrivacySetting;
+};
+
+export type IEvent = CreateEventInput & {
+    _id: string;
+};
 
 const EventSchema = new Schema<IEvent>(
     {
-        _id: {type: Schema.Types.ObjectId, required: false},
-        slug: {type: String},
+        _id: {type: String, required: true},
         title: {type: String, required: true},
         description: {type: String, required: true},
         startDate: {type: String},
         endDate: {type: String},
         location: String,
-        organizers: {type: [Schema.Types.ObjectId]},
+        organizers: {type: [String]},
         eventType: {type: String, required: false},
         eventCategory: {type: String, required: false},
         capacity: {type: Number, required: false},
-        rSVPs: {type: [Schema.Types.ObjectId], required: false},
+        rSVPs: {type: [String], required: false},
         tags: {type: Map, of: String, required: false},
         eventLink: {type: String, required: false},
         status: {type: String, required: false},

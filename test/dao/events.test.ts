@@ -1,38 +1,254 @@
 import {expect} from 'chai';
-import sinon, {SinonStub} from 'sinon';
+import {SinonStub, stub} from 'sinon';
 import {EventDAO} from '../../lib/dao';
 import {EventStatus, IEvent} from '../../lib/models';
-import {Schema} from 'mongoose';
+import Event, {UpdateEventInput} from '../../lib/models/event';
+import { HttpStatusCode } from '../../lib/utils/constants';
 
-describe('EventDAO', () => {
-    let eventDAO: EventDAO;
-    let mockEventModel: Record<string, SinonStub>;
-    let mockCreateEventInput: IEvent;
+describe('Event DAO', () => {
+    let sampleEvent: IEvent;
+    let createStub: SinonStub;
+    let findByIdStub: SinonStub;
+    let findStub: SinonStub;
+    let findByIdAndUpdateStub: SinonStub;
+    let findByIdAndRemoveStub: SinonStub;
+    let queryStub: {
+        select: SinonStub,
+        exec: SinonStub,
+    };
 
     beforeEach(() => {
-        mockEventModel = {
-            create: sinon.stub(),
-            findById: sinon.stub(),
-            findOne: sinon.stub(),
-            find: sinon.stub(),
+        sampleEvent = {
+            _id: 'sampleEventId',
+            title: 'Sample Event',
+            description: 'This is a sample event',
+            status: EventStatus.Ongoing,
         };
-        eventDAO = new EventDAO();
-        mockCreateEventInput = {
-            _id: new Schema.Types.ObjectId('mockPath'),
-            title: 'mockTitle',
-            description: 'mockDescription',
-            status: EventStatus.Completed,
+        createStub = stub(Event, 'create');
+        findByIdStub = stub(Event, 'findById');
+        findStub = stub(Event, 'find');
+        findByIdAndUpdateStub = stub(Event, 'findByIdAndUpdate');
+        findByIdAndRemoveStub = stub(Event, 'findByIdAndRemove');
+        queryStub = {
+            select: stub().returnsThis(),
+            exec: stub(),
         };
     });
 
-    afterEach(() => {
-        sinon.restore();
+    describe('create', () => {
+        afterEach(() => {
+            createStub.restore();
+        });
+
+        it('should create a new event', async () => {
+            createStub.resolves(sampleEvent);
+
+            const createdEvent = await EventDAO.create(sampleEvent);
+
+            expect(createdEvent).to.deep.equal(sampleEvent);
+            expect(createStub.calledOnce).to.be.true;
+        });
     });
 
-    it('should create an event', async () => {
-        // mockEventModel.create.resolves(mockCreateEventInput);
-        // const result = await eventDAO.createEvent(mockCreateEventInput);
-        // expect(mockEventModel.create.calledOnceWith(mockCreateEventInput)).to.be.true;
-        // expect(result).to.deep.equal({...mockCreateEventInput});
+    describe('readEventById', () => {
+        afterEach(() => {
+            findByIdStub.restore();
+            queryStub.select.restore();
+            queryStub.exec.restore();
+        });
+
+        it('should return an event by ID', async () => {
+            queryStub.exec.resolves(sampleEvent);
+            findByIdStub.withArgs(sampleEvent._id).returns(queryStub);
+
+            const event = await EventDAO.readEventById(sampleEvent._id, ['title', 'description']);
+
+            expect(event).to.deep.equal(sampleEvent);
+            expect(findByIdStub.calledOnceWithExactly(sampleEvent._id)).to.be.true;
+        });
+
+        it('should throw a 404 error', async () => {
+            queryStub.exec.resolves(undefined);
+            findByIdStub.withArgs(sampleEvent._id).returns(queryStub);
+
+            try {
+                await EventDAO.readEventById(sampleEvent._id);
+                expect.fail('Expected an exception to be thrown');
+            } catch (error: any) {
+                expect(error.statusCode).to.equal(HttpStatusCode.NOT_FOUND);
+                expect(error.message).to.equal('Event not found');
+                expect(error.errorType).to.equal('ResourceNotFoundException');
+            }
+        });
+    });
+
+    describe('readEvents', () => {
+        afterEach(() => {
+            findStub.restore();
+            queryStub.select.restore();
+            queryStub.exec.restore();
+        });
+
+        it('should return all events with projections', async () => {
+            queryStub.exec.resolves([sampleEvent]);
+            findStub.returns(queryStub);
+
+            const events = await EventDAO.readEvents(['title', 'description']);
+
+            expect(events).to.deep.equal([sampleEvent]);
+            expect(findStub.calledOnceWithExactly({})).to.be.true;
+            expect(queryStub.select.args[0][0]).to.equal('title description');
+        });
+
+        it('should return all events without projections', async () => {
+            queryStub.exec.resolves([sampleEvent]);
+            findStub.returns(queryStub);
+
+            const events = await EventDAO.readEvents();
+
+            expect(events).to.deep.equal([sampleEvent]);
+            expect(findStub.calledOnceWithExactly({})).to.be.true;
+            expect(queryStub.select.args[0][0]).to.equal(undefined);
+        });
+    });
+
+    describe('queryEvents', () => {
+        afterEach(() => {
+            findStub.restore();
+            queryStub.select.restore();
+            queryStub.exec.restore();
+        });
+
+        it('should return all matching events with projections', async () => {
+            queryStub.exec.resolves([sampleEvent]);
+            findStub.returns(queryStub);
+
+            const queryParams = {status: EventStatus.Ongoing};
+            const events = await EventDAO.queryEvents(queryParams, ['title', 'description']);
+
+            expect(events).to.deep.equal([sampleEvent]);
+            expect(findStub.calledOnceWithExactly(queryParams)).to.be.true;
+            expect(queryStub.select.args[0][0]).to.equal('title description');
+        });
+
+        it('should return all events without projections', async () => {
+            queryStub.exec.resolves([sampleEvent]);
+            findStub.returns(queryStub);
+
+            const queryParams = {status: EventStatus.Ongoing};
+            const events = await EventDAO.queryEvents(queryParams);
+            console.log(queryStub.select.args);
+
+            expect(events).to.deep.equal([sampleEvent]);
+            expect(findStub.calledOnceWithExactly(queryParams)).to.be.true;
+            expect(queryStub.select.args[0][0]).to.equal(undefined);
+        });
+    });
+
+    describe('updateEvent', () => {
+        afterEach(() => {
+            findByIdAndUpdateStub.restore();
+            queryStub.select.restore();
+            queryStub.exec.restore();
+        });
+
+        it('should update an event by ID', async () => {
+            const newTitle = 'Updated Title';
+            sampleEvent.title = newTitle;
+            queryStub.exec.resolves(sampleEvent);
+            findByIdAndUpdateStub.returns(queryStub);
+
+            const eventData: UpdateEventInput = {title: newTitle};
+            const updatedEvent = await EventDAO.updateEvent(sampleEvent._id, eventData);
+
+            expect(updatedEvent).to.deep.equal(sampleEvent);
+            expect(findByIdAndUpdateStub.calledOnceWithExactly(sampleEvent._id, eventData, {new: true})).to.be.true;
+        });
+
+        it('should throw a 404 error', async () => {
+            queryStub.exec.resolves(undefined);
+            findByIdAndUpdateStub.withArgs(sampleEvent._id).returns(queryStub);
+
+            try {
+                await EventDAO.updateEvent(sampleEvent._id, {title: 'updated title'});
+                expect.fail('Expected an exception to be thrown');
+            } catch (error: any) {
+                expect(error.statusCode).to.equal(HttpStatusCode.NOT_FOUND);
+                expect(error.message).to.equal('Event not found');
+                expect(error.errorType).to.equal('ResourceNotFoundException');
+            }
+        });
+    });
+
+    describe('deleteEvent', () => {
+        afterEach(() => {
+            findByIdAndRemoveStub.restore();
+            queryStub.select.restore();
+            queryStub.exec.restore();
+        });
+
+        it('should delete an event by ID', async () => {
+            queryStub.exec.resolves(sampleEvent);
+            findByIdAndRemoveStub.returns(queryStub);
+
+            const deletedEvent = await EventDAO.deleteEvent(sampleEvent._id);
+
+            expect(deletedEvent).to.deep.equal(sampleEvent);
+            expect(findByIdAndRemoveStub.calledOnceWithExactly(sampleEvent._id)).to.be.true;
+        });
+
+        it('should throw a 404 error', async () => {
+            queryStub.exec.resolves(undefined);
+            findByIdAndRemoveStub.withArgs(sampleEvent._id).returns(queryStub);
+
+            try {
+                await EventDAO.deleteEvent(sampleEvent._id);
+                expect.fail('Expected an exception to be thrown');
+            } catch (error: any) {
+                expect(error.statusCode).to.equal(HttpStatusCode.NOT_FOUND);
+                expect(error.message).to.equal('Event not found');
+                expect(error.errorType).to.equal('ResourceNotFoundException');
+            }
+        });
+    });
+
+    describe('rsvp', () => {
+        afterEach(() => {
+            findByIdAndUpdateStub.restore();
+            queryStub.select.restore();
+            queryStub.exec.restore();
+        });
+
+        it('should add users to the RSVP list', async () => {
+            const userIds = ['user1', 'user2'];
+            (sampleEvent.rSVPs = userIds), queryStub.exec.resolves(sampleEvent);
+            findByIdAndUpdateStub.returns(queryStub);
+
+            const event = await EventDAO.rsvp(sampleEvent._id, userIds);
+
+            expect(event).to.deep.equal(sampleEvent);
+            expect(event?.rSVPs).to.equal(userIds);
+            expect(findByIdAndUpdateStub.calledOnceWithExactly(sampleEvent._id, {$addToSet: {rSVPs: {$each: userIds}}}, {new: true})).to.be.true;
+        });
+    });
+
+    describe('cancelRsvp', () => {
+        afterEach(() => {
+            findByIdAndUpdateStub.restore();
+            queryStub.select.restore();
+            queryStub.exec.restore();
+        });
+
+        it('should remove users from the RSVP list', async () => {
+            queryStub.exec.resolves(sampleEvent);
+            findByIdAndUpdateStub.returns(queryStub);
+
+            const userIds = ['user1', 'user2'];
+            const event = await EventDAO.cancelRsvp(sampleEvent._id, userIds);
+
+            expect(event).to.deep.equal(sampleEvent);
+            expect(event?.rSVPs).to.equal(undefined);
+            expect(findByIdAndUpdateStub.calledOnceWithExactly(sampleEvent._id, {$pull: {rSVPs: {$in: userIds}}}, {new: true})).to.be.true;
+        });
     });
 });

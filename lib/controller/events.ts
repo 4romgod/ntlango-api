@@ -1,89 +1,97 @@
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../utils/constants';
 import {EventDAO} from '../dao';
-import {IEvent} from '../models';
+import {CreateEventInput, IEvent, UpdateEventInput} from '../models';
 import slugify from 'slugify';
 
 class EventController {
-    private eventDAO: EventDAO;
-
-    constructor(eventDAO: EventDAO) {
-        this.eventDAO = eventDAO;
-    }
-
-    async createEvent(req: Request, res: Response): Promise<void> {
+    static async createEvent(req: Request, res: Response, next: any) {
         try {
-            const requestBody = req.body;
-            const slug = slugify(requestBody.title);
-            const eventData: IEvent = {...requestBody, slug};
+            const requestBody: CreateEventInput = req.body;
+            const eventData: IEvent = {
+                ...requestBody,
+                _id: slugify(requestBody.title),
+            };
 
-            const event = await this.eventDAO.createEvent(eventData);
-            res.status(HttpStatusCode.CREATED).json(event);
+            const createdEvent = await EventDAO.create(eventData);
+            res.status(HttpStatusCode.CREATED).json(createdEvent);
         } catch (error) {
-            res.status(HttpStatusCode.INTERNAL_SERVER).json({error: 'Internal Server Error'});
+            next(error);
         }
     }
 
-    async getEventById(req: Request, res: Response): Promise<void> {
+    static async getEventById(req: Request, res: Response, next: any) {
         try {
-            const eventId = req.params.eventId;
+            const {eventId} = req.params;
             const projections = req.query.projections ? (req.query.projections as string).split(',') : [];
-            const event = await this.eventDAO.readEventById(eventId, projections);
-
-            if (event) {
-                res.status(HttpStatusCode.OK).json(event);
-            } else {
-                res.status(HttpStatusCode.NOT_FOUND).json({error: 'Event not found'});
-            }
+            const event = await EventDAO.readEventById(eventId, projections);
+            res.status(HttpStatusCode.OK).json(event);
         } catch (error) {
-            res.status(HttpStatusCode.INTERNAL_SERVER).json({error: 'Internal Server Error'});
+            next(error);
         }
     }
 
-    async getEventBySlug(req: Request, res: Response): Promise<void> {
-        try {
-            const slug = req.params.slug;
-            const projections = req.query.projections ? (req.query.projections as string).split(',') : [];
-            const event = await this.eventDAO.readEventBySlug(slug, projections);
-
-            if (event) {
-                res.status(HttpStatusCode.OK).json(event);
-            } else {
-                res.status(HttpStatusCode.NOT_FOUND).json({error: 'Event not found'});
-            }
-        } catch (error) {
-            res.status(HttpStatusCode.INTERNAL_SERVER).json({error: 'Internal Server Error'});
-        }
-    }
-
-    async getEvents(req: Request, res: Response): Promise<void> {
+    static async getEvents(req: Request, res: Response, next: any) {
         try {
             const projections = req.query.projections ? (req.query.projections as string).split(',') : [];
-            const events = await this.eventDAO.readEvents(projections);
-
-            if (events && events.length) {
-                res.status(HttpStatusCode.OK).json(events);
-            } else {
-                res.status(HttpStatusCode.NOT_FOUND).json({error: 'Events not found'});
-            }
+            const events = await EventDAO.readEvents(projections);
+            res.status(HttpStatusCode.OK).json(events);
         } catch (error) {
-            res.status(HttpStatusCode.INTERNAL_SERVER).json({error: 'Internal Server Error'});
+            next(error);
         }
     }
 
-    async queryEvents(req: Request, res: Response): Promise<void> {
+    static async queryEvents(req: Request, res: Response, next: any) {
         try {
             const queryParams = req.query;
             const projections = req.query.projections ? (req.query.projections as string).split(',') : [];
-            const events = await this.eventDAO.queryEvents(queryParams, projections);
-
-            if (events && events.length) {
-                res.status(HttpStatusCode.OK).json(events);
-            } else {
-                res.status(HttpStatusCode.NOT_FOUND).json({error: 'Events not found'});
-            }
+            const events = await EventDAO.queryEvents(queryParams, projections);
+            res.status(HttpStatusCode.OK).json(events);
         } catch (error) {
-            res.status(HttpStatusCode.INTERNAL_SERVER).json({error: 'Internal Server Error'});
+            next(error);
+        }
+    }
+
+    static async updateEvent(req: Request, res: Response, next: any) {
+        try {
+            const {eventId} = req.params;
+            const eventData: UpdateEventInput = req.body;
+            const updatedEvent = await EventDAO.updateEvent(eventId, eventData);
+            res.status(HttpStatusCode.OK).json(updatedEvent);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async deleteEvent(req: Request, res: Response, next: any) {
+        try {
+            const {eventId} = req.params;
+            const deletedEvent = await EventDAO.deleteEvent(eventId);
+            res.status(HttpStatusCode.OK).json(deletedEvent);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async rsvpToEvent(req: Request, res: Response, next: any) {
+        try {
+            const {eventId} = req.params;
+            const userIds = req.query.userIds ? (req.query.userIds as string).split(',') : [];
+            const event = await EventDAO.rsvp(eventId, userIds);
+            res.status(HttpStatusCode.OK).json(event);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async cancelRsvpToEvent(req: Request, res: Response, next: any) {
+        try {
+            const {eventId} = req.params;
+            const userIds = req.query.userIds ? (req.query.userIds as string).split(',') : [];
+            const event = await EventDAO.cancelRsvp(eventId, userIds);
+            res.json(event);
+        } catch (error) {
+            next(error);
         }
     }
 }

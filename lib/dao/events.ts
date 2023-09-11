@@ -1,40 +1,64 @@
-import Event, {IEvent} from '../models/event';
+import Event, {IEvent, UpdateEventInput} from '../models/event';
+import {ResourceNotFoundException} from '../utils/exceptions';
 
 class EventDAO {
-    async createEvent(eventData: IEvent): Promise<IEvent> {
-        return Event.create(eventData);
+    static async create(eventData: IEvent): Promise<IEvent> {
+        return await Event.create(eventData);
     }
 
-    async readEventById(eventId: string, projections?: string[]): Promise<IEvent | null> {
+    static async readEventById(eventId: string, projections?: Array<string>): Promise<IEvent> {
         const query = Event.findById(eventId);
         if (projections && projections.length) {
             query.select(projections.join(' '));
         }
-        return query.exec();
-    }
+        const event = await query.exec();
 
-    async readEventBySlug(slug: string, projections?: string[]): Promise<IEvent | null> {
-        const query = Event.findOne({slug: slug});
-        if (projections && projections.length) {
-            query.select(projections.join(' '));
+        if (!event) {
+            throw ResourceNotFoundException('Event not found');
         }
-        return query.exec();
+        return event;
     }
 
-    async readEvents(projections?: string[]): Promise<IEvent[] | null> {
+    static async readEvents(projections?: Array<string>): Promise<Array<IEvent>> {
         const query = Event.find({});
         if (projections && projections.length) {
             query.select(projections.join(' '));
         }
-        return query.exec();
+        return await query.exec();
     }
 
-    async queryEvents(queryParams: any, projections?: string[]): Promise<IEvent[]> {
+    static async queryEvents(queryParams: any, projections?: Array<string>): Promise<IEvent[]> {
         const query = Event.find(queryParams);
         if (projections && projections.length) {
             query.select(projections.join(' '));
         }
-        return query.exec();
+        return await query.exec();
+    }
+
+    static async updateEvent(eventId: string, eventData: UpdateEventInput) {
+        const updatedEvent = await Event.findByIdAndUpdate(eventId, eventData, {new: true}).exec();
+        if (!updatedEvent) {
+            throw ResourceNotFoundException('Event not found');
+        }
+        return updatedEvent;
+    }
+
+    static async deleteEvent(eventId: string): Promise<IEvent> {
+        const deletedEvent = await Event.findByIdAndRemove(eventId).exec();
+        if (!deletedEvent) {
+            throw ResourceNotFoundException('Event not found');
+        }
+        return deletedEvent;
+    }
+
+    static async rsvp(eventId: string, userIds: Array<string>) {
+        const event = await Event.findByIdAndUpdate(eventId, {$addToSet: {rSVPs: {$each: userIds}}}, {new: true}).exec();
+        return event;
+    }
+
+    static async cancelRsvp(eventId: string, userIds: Array<string>) {
+        const event = await Event.findByIdAndUpdate(eventId, {$pull: {rSVPs: {$in: userIds}}}, {new: true}).exec();
+        return event;
     }
 }
 

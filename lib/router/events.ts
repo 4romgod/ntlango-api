@@ -1,16 +1,16 @@
 import {Router} from 'express';
 import {EventController} from '../controller';
 import {eventsValidator, isInputValid} from '../utils/validators';
-import {EventDAO} from '../dao';
 
 const router = Router();
-const eventDAO = new EventDAO();
-const eventController = new EventController(eventDAO);
 
-router.post('/events', eventsValidator.createEvent, isInputValid, eventController.createEvent);
-router.get('/events', eventController.getEvents);
-router.get('/events/:eventId', eventController.getEventById);
-router.get('/eventd/slug/:slug', eventController.getEventBySlug);
-// router.get('/events', eventController.queryEvents); TODO fix this
+router.post('/events', eventsValidator.createEvent, isInputValid, EventController.createEvent);
+router.get('/events', EventController.getEvents);
+router.get('/events/:eventId', EventController.getEventById);
+router.put('/events/:eventId', EventController.updateEvent);
+router.delete('/events/:eventId', EventController.deleteEvent);
+router.post('/events/:eventId/rsvp', EventController.rsvpToEvent);
+router.post('/events/:eventId/cancelrsvp', EventController.cancelRsvpToEvent);
+router.post('/events/query', EventController.queryEvents);
 
 export default router;
