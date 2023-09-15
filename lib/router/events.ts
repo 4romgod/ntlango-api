@@ -11,6 +11,5 @@ router.put('/events/:eventId', EventController.updateEvent);
 router.delete('/events/:eventId', EventController.deleteEvent);
 router.post('/events/:eventId/rsvp', EventController.rsvpToEvent);
 router.post('/events/:eventId/cancelrsvp', EventController.cancelRsvpToEvent);
-router.post('/events/query', EventController.queryEvents);
 
 export default router;

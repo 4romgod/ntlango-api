@@ -1,4 +1,3 @@
-import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {AuthController} from '../../lib/controller';
 import {HttpStatusCode} from '../../lib/utils/constants';

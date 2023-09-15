@@ -3,6 +3,7 @@ import {HttpStatusCode} from '../utils/constants';
 import {EventDAO} from '../dao';
 import {CreateEventInput, IEvent, UpdateEventInput} from '../models';
 import slugify from 'slugify';
+import {InvalidArgumentException} from '../utils/exceptions';
 
 class EventController {
     static async createEvent(req: Request, res: Response, next: any) {
@@ -33,19 +34,9 @@ class EventController {
 
     static async getEvents(req: Request, res: Response, next: any) {
         try {
-            const projections = req.query.projections ? (req.query.projections as string).split(',') : [];
-            const events = await EventDAO.readEvents(projections);
-            res.status(HttpStatusCode.OK).json(events);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    static async queryEvents(req: Request, res: Response, next: any) {
-        try {
-            const queryParams = req.query;
-            const projections = req.query.projections ? (req.query.projections as string).split(',') : [];
-            const events = await EventDAO.queryEvents(queryParams, projections);
+            const {projections, ...queryParams} = req.query;
+            const parsedProjections = req.query.projections ? (req.query.projections as string).split(',') : [];
+            const events = await EventDAO.readEvents(queryParams, parsedProjections);
             res.status(HttpStatusCode.OK).json(events);
         } catch (error) {
             next(error);
@@ -75,8 +66,11 @@ class EventController {
 
     static async rsvpToEvent(req: Request, res: Response, next: any) {
         try {
+            if (!req.query.userIds) {
+                throw InvalidArgumentException('Invalid user IDs entered');
+            }
+            const userIds = (req.query.userIds as string).split(',');
             const {eventId} = req.params;
-            const userIds = req.query.userIds ? (req.query.userIds as string).split(',') : [];
             const event = await EventDAO.rsvp(eventId, userIds);
             res.status(HttpStatusCode.OK).json(event);
         } catch (error) {
@@ -86,10 +80,13 @@ class EventController {
 
     static async cancelRsvpToEvent(req: Request, res: Response, next: any) {
         try {
+            if (!req.query.userIds) {
+                throw InvalidArgumentException('Invalid user IDs entered');
+            }
             const {eventId} = req.params;
-            const userIds = req.query.userIds ? (req.query.userIds as string).split(',') : [];
+            const userIds = (req.query.userIds as string).split(',');
             const event = await EventDAO.cancelRsvp(eventId, userIds);
-            res.json(event);
+            res.status(HttpStatusCode.OK).json(event);
         } catch (error) {
             next(error);
         }

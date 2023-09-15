@@ -11,12 +11,12 @@ class MongoDbClient {
         }
     }
 
-    static async disconnectToDatabase() {
+    static async disconnectFromDatabase() {
         try {
             await disconnect();
             console.log('MongoDB disconnected!');
         } catch (error) {
-            console.log('Failed to disconnect to MongoDB!');
+            console.log('Failed to disconnect from MongoDB!');
             throw error;
         }
     }

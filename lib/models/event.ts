@@ -70,7 +70,7 @@ export type Media = Map<string, any>;
 
 export type CreateEventInput = {
     title: string;
-    description: string;
+    description?: string;
     startDate?: string;
     endDate?: string;
     location?: string;
@@ -116,7 +116,7 @@ const EventSchema = new Schema<IEvent>(
     {
         _id: {type: String, required: true},
         title: {type: String, required: true},
-        description: {type: String, required: true},
+        description: {type: String, required: false},
         startDate: {type: String},
         endDate: {type: String},
         location: String,

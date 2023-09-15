@@ -11,7 +11,7 @@ class HealthCheckController {
                 message: 'OK',
                 timestamp: Date.now(),
             };
-            await MongoDbClient.disconnectToDatabase();
+            await MongoDbClient.disconnectFromDatabase();
             return res.status(HttpStatusCode.OK).json(healthcheck);
         } catch (error) {
             console.error('Error during health check:', error);

@@ -19,16 +19,8 @@ class EventDAO {
         return event;
     }
 
-    static async readEvents(projections?: Array<string>): Promise<Array<IEvent>> {
-        const query = Event.find({});
-        if (projections && projections.length) {
-            query.select(projections.join(' '));
-        }
-        return await query.exec();
-    }
-
-    static async queryEvents(queryParams: any, projections?: Array<string>): Promise<IEvent[]> {
-        const query = Event.find(queryParams);
+    static async readEvents(queryParams?: any, projections?: Array<string>): Promise<Array<IEvent>> {
+        const query = Event.find({...queryParams});
         if (projections && projections.length) {
             query.select(projections.join(' '));
         }
