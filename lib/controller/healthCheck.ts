@@ -1,22 +1,17 @@
 import {Request, Response} from 'express';
-import {HttpStatusCode} from '../utils/constants';
+import {HttpStatusCode, MONGO_DB_URL} from '../utils/constants';
 import {MongoDbClient} from '../clients';
 
 class HealthCheckController {
-    private mongoDbClient: MongoDbClient;
-
-    constructor(mongoDbClient: MongoDbClient) {
-        this.mongoDbClient = mongoDbClient;
-    }
-
     async healthCheck(req: Request, res: Response) {
         try {
-            await this.mongoDbClient.connectToDatabase();
+            await MongoDbClient.connectToDatabase(MONGO_DB_URL);
             const healthcheck = {
                 uptime: process.uptime(),
                 message: 'OK',
                 timestamp: Date.now(),
             };
+            await MongoDbClient.disconnectToDatabase();
             return res.status(HttpStatusCode.OK).json(healthcheck);
         } catch (error) {
             console.error('Error during health check:', error);

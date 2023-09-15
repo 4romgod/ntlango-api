@@ -1,20 +1,22 @@
-import {connect} from 'mongoose';
+import {connect, disconnect} from 'mongoose';
 
 class MongoDbClient {
-    private databaseUrl: string;
-
-    constructor(databaseUrl: string) {
-        console.log('Initializing MongoDB Client...');
-        this.databaseUrl = databaseUrl;
-    }
-
-    public async connectToDatabase() {
-        console.log('connecting to MongoDB...');
+    static async connectToDatabase(databaseUrl: string) {
         try {
-            await connect(this.databaseUrl);
+            await connect(databaseUrl);
             console.log('MongoDB connected!');
         } catch (error) {
             console.log('Failed to connect to MongoDB!');
+            throw error;
+        }
+    }
+
+    static async disconnectToDatabase() {
+        try {
+            await disconnect();
+            console.log('MongoDB disconnected!');
+        } catch (error) {
+            console.log('Failed to disconnect to MongoDB!');
             throw error;
         }
     }

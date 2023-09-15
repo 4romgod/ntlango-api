@@ -11,9 +11,8 @@ import * as cors from 'cors';
 const app: Express = express();
 const eventEmitter = new EventEmitter();
 
-const mongoDbClient = new MongoDbClient(MONGO_DB_URL);
 async () => {
-    await mongoDbClient.connectToDatabase();
+    await MongoDbClient.connectToDatabase(MONGO_DB_URL);
     eventEmitter.emit('appInitialized');
 };
 

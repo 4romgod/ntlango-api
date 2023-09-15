@@ -1,11 +1,12 @@
 import {expect} from 'chai';
-import {SinonStub, stub} from 'sinon';
+import {SinonStub, createSandbox} from 'sinon';
 import {EventDAO} from '../../lib/dao';
 import {EventStatus, IEvent} from '../../lib/models';
 import Event, {UpdateEventInput} from '../../lib/models/event';
-import { HttpStatusCode } from '../../lib/utils/constants';
+import {HttpStatusCode} from '../../lib/utils/constants';
 
 describe('Event DAO', () => {
+    const sandbox = createSandbox();
     let sampleEvent: IEvent;
     let createStub: SinonStub;
     let findByIdStub: SinonStub;
@@ -13,8 +14,8 @@ describe('Event DAO', () => {
     let findByIdAndUpdateStub: SinonStub;
     let findByIdAndRemoveStub: SinonStub;
     let queryStub: {
-        select: SinonStub,
-        exec: SinonStub,
+        select: SinonStub;
+        exec: SinonStub;
     };
 
     beforeEach(() => {
@@ -24,20 +25,20 @@ describe('Event DAO', () => {
             description: 'This is a sample event',
             status: EventStatus.Ongoing,
         };
-        createStub = stub(Event, 'create');
-        findByIdStub = stub(Event, 'findById');
-        findStub = stub(Event, 'find');
-        findByIdAndUpdateStub = stub(Event, 'findByIdAndUpdate');
-        findByIdAndRemoveStub = stub(Event, 'findByIdAndRemove');
+        createStub = sandbox.stub(Event, 'create');
+        findByIdStub = sandbox.stub(Event, 'findById');
+        findStub = sandbox.stub(Event, 'find');
+        findByIdAndUpdateStub = sandbox.stub(Event, 'findByIdAndUpdate');
+        findByIdAndRemoveStub = sandbox.stub(Event, 'findByIdAndRemove');
         queryStub = {
-            select: stub().returnsThis(),
-            exec: stub(),
+            select: sandbox.stub().returnsThis(),
+            exec: sandbox.stub(),
         };
     });
 
     describe('create', () => {
         afterEach(() => {
-            createStub.restore();
+            sandbox.restore();
         });
 
         it('should create a new event', async () => {
@@ -52,9 +53,7 @@ describe('Event DAO', () => {
 
     describe('readEventById', () => {
         afterEach(() => {
-            findByIdStub.restore();
-            queryStub.select.restore();
-            queryStub.exec.restore();
+            sandbox.restore();
         });
 
         it('should return an event by ID', async () => {
@@ -84,9 +83,7 @@ describe('Event DAO', () => {
 
     describe('readEvents', () => {
         afterEach(() => {
-            findStub.restore();
-            queryStub.select.restore();
-            queryStub.exec.restore();
+            sandbox.restore();
         });
 
         it('should return all events with projections', async () => {
@@ -108,15 +105,13 @@ describe('Event DAO', () => {
 
             expect(events).to.deep.equal([sampleEvent]);
             expect(findStub.calledOnceWithExactly({})).to.be.true;
-            expect(queryStub.select.args[0][0]).to.equal(undefined);
+            expect(queryStub.select.args.length).to.equal(0);
         });
     });
 
     describe('queryEvents', () => {
         afterEach(() => {
-            findStub.restore();
-            queryStub.select.restore();
-            queryStub.exec.restore();
+            sandbox.restore();
         });
 
         it('should return all matching events with projections', async () => {
@@ -137,19 +132,16 @@ describe('Event DAO', () => {
 
             const queryParams = {status: EventStatus.Ongoing};
             const events = await EventDAO.queryEvents(queryParams);
-            console.log(queryStub.select.args);
 
             expect(events).to.deep.equal([sampleEvent]);
             expect(findStub.calledOnceWithExactly(queryParams)).to.be.true;
-            expect(queryStub.select.args[0][0]).to.equal(undefined);
+            expect(queryStub.select.args.length).to.equal(0);
         });
     });
 
     describe('updateEvent', () => {
         afterEach(() => {
-            findByIdAndUpdateStub.restore();
-            queryStub.select.restore();
-            queryStub.exec.restore();
+            sandbox.restore();
         });
 
         it('should update an event by ID', async () => {
@@ -182,9 +174,7 @@ describe('Event DAO', () => {
 
     describe('deleteEvent', () => {
         afterEach(() => {
-            findByIdAndRemoveStub.restore();
-            queryStub.select.restore();
-            queryStub.exec.restore();
+            sandbox.restore();
         });
 
         it('should delete an event by ID', async () => {
@@ -214,9 +204,7 @@ describe('Event DAO', () => {
 
     describe('rsvp', () => {
         afterEach(() => {
-            findByIdAndUpdateStub.restore();
-            queryStub.select.restore();
-            queryStub.exec.restore();
+            sandbox.restore();
         });
 
         it('should add users to the RSVP list', async () => {
@@ -234,9 +222,7 @@ describe('Event DAO', () => {
 
     describe('cancelRsvp', () => {
         afterEach(() => {
-            findByIdAndUpdateStub.restore();
-            queryStub.select.restore();
-            queryStub.exec.restore();
+            sandbox.restore();
         });
 
         it('should remove users from the RSVP list', async () => {

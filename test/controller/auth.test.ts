@@ -2,9 +2,10 @@ import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {AuthController} from '../../lib/controller';
 import {HttpStatusCode} from '../../lib/utils/constants';
-import sinon, {SinonStub} from 'sinon';
+import {SinonStub, createSandbox} from 'sinon';
 
 describe('AuthController', () => {
+    const sandbox = createSandbox();
     let authController: AuthController;
     let mockCognitoClient: Record<string, SinonStub>;
     let req: any;
@@ -13,9 +14,9 @@ describe('AuthController', () => {
 
     beforeEach(() => {
         mockCognitoClient = {
-            register: sinon.stub(),
-            login: sinon.stub(),
-            logout: sinon.stub(),
+            register: sandbox.stub(),
+            login: sandbox.stub(),
+            logout: sandbox.stub(),
         };
         authController = new AuthController(mockCognitoClient as any);
 
@@ -23,14 +24,14 @@ describe('AuthController', () => {
             body: {},
         };
         res = {
-            status: sinon.stub().returnsThis(),
-            json: sinon.stub(),
+            status: sandbox.stub().returnsThis(),
+            json: sandbox.stub(),
         };
-        next = sinon.stub();
+        next = sandbox.stub();
     });
 
     afterEach(() => {
-        sinon.restore();
+        sandbox.restore();
     });
 
     describe('register', () => {
