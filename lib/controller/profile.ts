@@ -1,59 +1,62 @@
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../utils/constants';
 import {CognitoClient} from '../clients';
+import {ConfirmForgotPasswordInput, UpdateUserInput} from '@ntlango/api-client';
 
 class ProfileController {
-    private cognitoClient: CognitoClient;
+    private static cognitoClient: CognitoClient;
 
-    constructor(cognitoClient: CognitoClient) {
-        this.cognitoClient = cognitoClient;
+    static initialize(reinitialize = false) {
+        if (!this.cognitoClient || reinitialize) {
+            CognitoClient.initialize();
+        }
     }
 
-    async updateProfile(req: Request, res: Response, next: any) {
+    static async updateProfile(req: Request, res: Response, next: any) {
         try {
-            const {attributes} = req.body;
+            const updateInput: UpdateUserInput = req.body;
             const accessToken = req.headers.authorization || '';
-            const cognitoRes = await this.cognitoClient.updateUserAttributes({accessToken, attributes});
+            const cognitoRes = await CognitoClient.updateUserAttributes({accessToken, updateInput});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             next(error);
         }
     }
 
-    async forgotPassword(req: Request, res: Response, next: any) {
+    static async forgotPassword(req: Request, res: Response, next: any) {
         try {
             const {email} = req.body;
-            const cognitoRes = await this.cognitoClient.forgotPassword({email});
+            const cognitoRes = await CognitoClient.forgotPassword({email});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             next(error);
         }
     }
 
-    async confirmForgotPassword(req: Request, res: Response, next: any) {
+    static async confirmForgotPassword(req: Request, res: Response, next: any) {
         try {
-            const {email, password, code} = req.body;
-            const cognitoRes = await this.cognitoClient.confirmForgotPassword({email, password, code});
+            const confirmForgotPasswordInput: ConfirmForgotPasswordInput = req.body;
+            const cognitoRes = await CognitoClient.confirmForgotPassword(confirmForgotPasswordInput);
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             next(error);
         }
     }
 
-    async removeProfile(req: Request, res: Response, next: any) {
+    static async removeProfile(req: Request, res: Response, next: any) {
         try {
             const accessToken = req.headers.authorization || '';
-            const cognitoRes = await this.cognitoClient.removeAccount({accessToken});
+            const cognitoRes = await CognitoClient.removeAccount({accessToken});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             next(error);
         }
     }
 
-    async adminRemoveProfile(req: Request, res: Response, next: any) {
+    static async adminRemoveProfile(req: Request, res: Response, next: any) {
         try {
-            const {username} = req.params;
-            const cognitoRes = await this.cognitoClient.adminRemoveAccount({username});
+            const {userId} = req.params;
+            const cognitoRes = await CognitoClient.adminRemoveAccount({userId});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
             next(error);

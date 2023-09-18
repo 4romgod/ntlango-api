@@ -21,8 +21,8 @@ import {
     ExpiredCodeException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException, UnauthorizedException} from '../utils/exceptions';
-import {COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID} from '../utils/constants';
-import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput} from '@ntlango/api-client'; //TODO install @ntlango/client rather using npm links
+import {AWS_REGION, COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID, NUMBER_OF_RETRIES} from '../utils/constants';
+import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput, UpdateUserInput} from '@ntlango/api-client'; //TODO install @ntlango/client rather using npm links
 
 export interface IUserToken {
     accessToken?: string;
@@ -33,14 +33,18 @@ export interface IUserToken {
 }
 
 class CognitoClient {
-    public cognitoIsp: CognitoIdentityProviderClient;
+    private static cognitoIsp: CognitoIdentityProviderClient;
 
-    constructor(cognitoIsp: CognitoIdentityProviderClient) {
-        console.log('Initializing Cognito Client...');
-        this.cognitoIsp = cognitoIsp;
+    static initialize(reinitialize = false) {
+        if (!this.cognitoIsp || reinitialize) {
+            this.cognitoIsp = new CognitoIdentityProviderClient({
+                region: AWS_REGION,
+                maxAttempts: NUMBER_OF_RETRIES,
+            });
+        }
     }
 
-    public async register(user: RegisterInput): Promise<{message: string; userSub: string}> {
+    static async register(user: RegisterInput): Promise<{message: string; userSub: string}> {
         const {address, birthdate, email, family_name, gender, given_name, password, phone_number} = user;
 
         const params: SignUpRequest = {
@@ -75,7 +79,7 @@ class CognitoClient {
         }
     }
 
-    public async login(input: LoginInput): Promise<IUserToken> {
+    static async login(input: LoginInput): Promise<IUserToken> {
         const {email, password} = input;
 
         const params: InitiateAuthCommandInput = {
@@ -114,7 +118,7 @@ class CognitoClient {
         }
     }
 
-    public async logout({accessToken}: {accessToken: string}): Promise<{message: string}> {
+    static async logout({accessToken}: {accessToken: string}): Promise<{message: string}> {
         try {
             const params = {AccessToken: accessToken};
             await this.cognitoIsp.send(new GlobalSignOutCommand(params));
@@ -127,11 +131,11 @@ class CognitoClient {
         }
     }
 
-    public async updateUserAttributes({accessToken, attributes}: {accessToken: string; attributes: {Name: string; Value: string}[]}): Promise<any> {
+    static async updateUserAttributes({accessToken, updateInput}: {accessToken: string; updateInput: UpdateUserInput}): Promise<any> {
         try {
             const updateParams: UpdateUserAttributesCommandInput = {
                 AccessToken: accessToken,
-                UserAttributes: attributes,
+                UserAttributes: updateInput.attributes,
             };
             await this.cognitoIsp.send(new UpdateUserAttributesCommand(updateParams));
 
@@ -154,7 +158,7 @@ class CognitoClient {
         }
     }
 
-    public async forgotPassword(input: ForgotPasswordInput): Promise<{message: string}> {
+    static async forgotPassword(input: ForgotPasswordInput): Promise<{message: string}> {
         const params = {
             ClientId: COGNITO_CLIENT_ID,
             Username: input.email,
@@ -175,7 +179,7 @@ class CognitoClient {
         }
     }
 
-    public async confirmForgotPassword(input: ConfirmForgotPasswordInput): Promise<{message: string}> {
+    static async confirmForgotPassword(input: ConfirmForgotPasswordInput): Promise<{message: string}> {
         const {email, password, code} = input;
 
         const params = {
@@ -200,7 +204,7 @@ class CognitoClient {
         }
     }
 
-    public async removeAccount({accessToken}: {accessToken: string}): Promise<{message: string}> {
+    static async removeAccount({accessToken}: {accessToken: string}): Promise<{message: string}> {
         const params = {
             AccessToken: accessToken,
         };
@@ -220,10 +224,10 @@ class CognitoClient {
         }
     }
 
-    public async adminRemoveAccount({username}: {username: string}): Promise<{message: string}> {
+    static async adminRemoveAccount({userId}: {userId: string}): Promise<{message: string}> {
         const params = {
             UserPoolId: COGNITO_USER_POOL_ID,
-            Username: username,
+            Username: userId,
         };
         try {
             await this.cognitoIsp.send(new AdminDeleteUserCommand(params));
@@ -241,7 +245,7 @@ class CognitoClient {
         }
     }
 
-    public async resendVerificationEmail({email}: {email: string}): Promise<void> {
+    static async resendVerificationEmail({email}: {email: string}): Promise<void> {
         const params = {
             ClientId: COGNITO_CLIENT_ID,
             Username: email,

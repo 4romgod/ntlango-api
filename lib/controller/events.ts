@@ -35,7 +35,7 @@ class EventController {
     static async getEvents(req: Request, res: Response, next: any) {
         try {
             const {projections, ...queryParams} = req.query;
-            const parsedProjections = req.query.projections ? (req.query.projections as string).split(',') : [];
+            const parsedProjections = projections ? (projections as string).split(',') : [];
             const events = await EventDAO.readEvents(queryParams, parsedProjections);
             res.status(HttpStatusCode.OK).json(events);
         } catch (error) {

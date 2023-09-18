@@ -16,11 +16,11 @@ describe('MongoDbClient', () => {
         consoleLogStub = sandbox.stub(console, 'log');
     });
 
-    afterEach(() => {
-        sandbox.restore();
-    });
-
     describe('connectToDatabase', () => {
+        afterEach(() => {
+            sandbox.restore();
+        });
+
         it('should connect to MongoDB successfully', async () => {
             connectStub.resolves();
             try {
@@ -46,6 +46,10 @@ describe('MongoDbClient', () => {
     });
 
     describe('disconnectFromDatabase', () => {
+        afterEach(() => {
+            sandbox.restore();
+        });
+
         it('should disconnect from MongoDB successfully', async () => {
             disconnectStub.resolves();
             try {
