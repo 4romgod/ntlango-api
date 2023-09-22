@@ -21,7 +21,7 @@ describe('Auth Routes', () => {
         sandbox.restore();
     });
 
-    it('should define the /auth/register route with authValidator and isInputValid middleware', () => {
+    it('should define the /auth/register (post) route', () => {
         expect(authRouter.stack.some((layer: any) => layer.route?.path === '/auth/register')).to.be.true;
 
         const route = authRouter.stack.find((layer: any) => layer.route?.path === '/auth/register');
@@ -31,7 +31,7 @@ describe('Auth Routes', () => {
         expect(route.route.methods.post).to.be.true;
     });
 
-    it('should define the /auth/login route with authValidator and isInputValid middleware', () => {
+    it('should define the /auth/login (post) route', () => {
         expect(authRouter.stack.some((layer: any) => layer.route?.path === '/auth/login')).to.be.true;
 
         const route = authRouter.stack.find((layer: any) => layer.route?.path === '/auth/login');
@@ -40,7 +40,7 @@ describe('Auth Routes', () => {
         expect(route.route.stack.some((middleware: any) => middleware.name === 'isInputValid')).to.be.true;
     });
 
-    it('should define the /auth/logout route', () => {
+    it('should define the /auth/logout (post) route', () => {
         expect(authRouter.stack.some((layer: any) => layer.route?.path === '/auth/logout')).to.be.true;
 
         const route = authRouter.stack.find((layer: any) => layer.route?.path === '/auth/logout');
