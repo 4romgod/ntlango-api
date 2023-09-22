@@ -31,6 +31,7 @@ const removeProfile = [
 
 const adminRemoveProfile = [check('username').notEmpty().withMessage('Provide A Username')];
 
+// TODO finish this validator, validate all the inputs for each route
 export default {
     updateProfile,
     forgotPassword,

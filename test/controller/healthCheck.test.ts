@@ -1,8 +1,8 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import {SinonStub, createSandbox} from 'sinon';
-import { HealthCheckController } from '../../lib/controller';
-import { MongoDbClient } from '../../lib/clients';
-import { MONGO_DB_URL } from '../../lib/utils/constants';
+import {HealthCheckController} from '../../lib/controller';
+import {MongoDbClient} from '../../lib/clients';
+import {MONGO_DB_URL} from '../../lib/utils/constants';
 
 describe('HealthCheck Controller', () => {
     const sandbox = createSandbox();
@@ -37,9 +37,13 @@ describe('HealthCheck Controller', () => {
             expect(connectToDatabaseStub.calledOnceWithExactly(MONGO_DB_URL)).to.be.true;
             expect(disconnectFromDatabaseStub.calledOnce).to.be.true;
             expect(res.status.calledOnceWithExactly(200)).to.be.true;
-            expect(res.json.calledOnceWith(sandbox.match({
-                message: 'healthy',
-            }))).to.be.true;
+            expect(
+                res.json.calledOnceWith(
+                    sandbox.match({
+                        message: 'healthy',
+                    }),
+                ),
+            ).to.be.true;
         });
 
         it('should return an unhealthy response when the database connection fails', async () => {
@@ -49,9 +53,13 @@ describe('HealthCheck Controller', () => {
 
             expect(connectToDatabaseStub.calledOnceWithExactly(MONGO_DB_URL)).to.be.true;
             expect(res.status.calledOnceWithExactly(500)).to.be.true;
-            expect(res.json.calledOnceWith(sandbox.match({
-                message: 'unhealthy',
-            }))).to.be.true;
+            expect(
+                res.json.calledOnceWith(
+                    sandbox.match({
+                        message: 'unhealthy',
+                    }),
+                ),
+            ).to.be.true;
         });
     });
 });

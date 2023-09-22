@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import { createSandbox, SinonSandbox, SinonSpy, SinonStub } from 'sinon';
-import { ProfileController } from '../../lib/controller';
-import { HttpStatusCode } from '../../lib/utils/constants';
-import { CognitoClient } from '../../lib/clients';
+import {expect} from 'chai';
+import {createSandbox, SinonSandbox, SinonSpy, SinonStub} from 'sinon';
+import {ProfileController} from '../../lib/controller';
+import {HttpStatusCode} from '../../lib/utils/constants';
+import {CognitoClient} from '../../lib/clients';
 
 describe('ProfileController', () => {
     let sandbox: SinonSandbox;
@@ -45,22 +45,22 @@ describe('ProfileController', () => {
                         {
                             Name: 'first_name',
                             Value: 'UpdatedName',
-                        }
-                    ]
+                        },
+                    ],
                 },
                 headers: {
                     authorization: 'mockAuthToken',
                 },
             };
-        })
+        });
 
         it('should update user profile attributes successfully', async () => {
-            updateUserAttributesStub.resolves({ first_name: 'UpdatedName' });
+            updateUserAttributesStub.resolves({first_name: 'UpdatedName'});
 
             await ProfileController.updateProfile(req, res, next);
 
             expect(res.status.calledOnceWith(HttpStatusCode.OK)).to.be.true;
-            expect(res.json.calledOnceWith({ first_name: 'UpdatedName' })).to.be.true;
+            expect(res.json.calledOnceWith({first_name: 'UpdatedName'})).to.be.true;
             expect(next.called).to.be.false;
             expect(updateUserAttributesStub.args[0][0]).to.deep.equal({accessToken: req.headers.authorization, updateInput: req.body});
         });
@@ -146,7 +146,7 @@ describe('ProfileController', () => {
         it('should handle errors during confirm forgot password request', async () => {
             const error = new Error('Confirm forgot password request failed');
             confirmForgotPasswordStub.rejects(error);
-    
+
             await ProfileController.confirmForgotPassword(req, res, next);
 
             expect(next.calledOnceWith(error)).to.be.true;
@@ -184,7 +184,7 @@ describe('ProfileController', () => {
         it('should handle errors during confirm forgot password request', async () => {
             const error = new Error('Remove profile request failed');
             removeAccountStub.rejects(error);
-    
+
             await ProfileController.removeProfile(req, res, next);
 
             expect(next.calledOnceWith(error)).to.be.true;

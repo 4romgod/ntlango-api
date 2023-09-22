@@ -15,6 +15,7 @@ const login = [
     check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
 ];
 
+// TODO finish this validator, validate all the inputs for each route
 export default {
     register,
     login,

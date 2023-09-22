@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {AuthController} from '../../lib/controller';
 import {HttpStatusCode} from '../../lib/utils/constants';
 import {SinonSpy, SinonStub, createSandbox} from 'sinon';
-import { CognitoClient } from '../../lib/clients';
+import {CognitoClient} from '../../lib/clients';
 
 describe('AuthController', () => {
     const sandbox = createSandbox();
@@ -32,7 +32,7 @@ describe('AuthController', () => {
         afterEach(() => {
             sandbox.restore();
         });
-    
+
         it('should register a new user', async () => {
             registerStub.resolves({message: 'User registered'});
 
@@ -60,7 +60,7 @@ describe('AuthController', () => {
         afterEach(() => {
             sandbox.restore();
         });
-    
+
         it('should login a user successfully', async () => {
             const email = 'test@example.com';
             const password = 'testPassword';
@@ -100,7 +100,7 @@ describe('AuthController', () => {
         afterEach(() => {
             sandbox.restore();
         });
-    
+
         it('should logout a user successfully', async () => {
             const email = 'test@example.com';
             const password = 'testPassword';
@@ -140,7 +140,7 @@ describe('AuthController', () => {
         afterEach(() => {
             sandbox.restore();
         });
-    
+
         it('should log out a user', async () => {
             await AuthController.logout(req, res, next);
 

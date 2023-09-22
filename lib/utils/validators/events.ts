@@ -10,6 +10,7 @@ const updateEvent = [
     check('description').notEmpty().withMessage('Must be a valid description'),
 ];
 
+// TODO finish this validator, validate all the inputs for each route
 export default {
     createEvent,
     updateEvent,

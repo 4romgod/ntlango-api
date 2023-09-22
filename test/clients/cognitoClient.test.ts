@@ -97,9 +97,7 @@ describe('CognitoClient', () => {
         });
 
         it('throws not authorized exception when user is not authorized', async () => {
-            sendStub
-                .withArgs(sandbox.match.instanceOf(SignUpCommand))
-                .throws(new NotAuthorizedException({message: 'Not AuthNd', $metadata: {}}));
+            sendStub.withArgs(sandbox.match.instanceOf(SignUpCommand)).throws(new NotAuthorizedException({message: 'Not AuthNd', $metadata: {}}));
 
             try {
                 await CognitoClient.register(registerInput);
@@ -192,9 +190,7 @@ describe('CognitoClient', () => {
         });
 
         it('throws resource not found exception when user does not exist', async () => {
-            sendStub
-                .withArgs(sandbox.match.instanceOf(InitiateAuthCommand))
-                .throws(new UserNotFoundException({message: 'Not Found', $metadata: {}}));
+            sendStub.withArgs(sandbox.match.instanceOf(InitiateAuthCommand)).throws(new UserNotFoundException({message: 'Not Found', $metadata: {}}));
 
             try {
                 await CognitoClient.login({email: 'mockEmail', password: 'mockPassword'});
@@ -260,7 +256,7 @@ describe('CognitoClient', () => {
                 UserAttributes: updateUserInput.attributes,
             });
 
-            const result = await CognitoClient.updateUserAttributes({ accessToken: 'mockAccessToken', updateInput: updateUserInput});
+            const result = await CognitoClient.updateUserAttributes({accessToken: 'mockAccessToken', updateInput: updateUserInput});
             sandbox.assert.calledTwice(sendStub);
             expect(result).to.deep.equal({
                 mockName1: 'mockValue1',
@@ -274,7 +270,7 @@ describe('CognitoClient', () => {
                 .throws(new InvalidParameterException({message: 'Invalid Param entered', $metadata: {}}));
 
             try {
-                await CognitoClient.updateUserAttributes({ accessToken: 'mockAccessToken', updateInput: updateUserInput});
+                await CognitoClient.updateUserAttributes({accessToken: 'mockAccessToken', updateInput: updateUserInput});
                 expect.fail('Expected an exception to be thrown');
             } catch (error: any) {
                 sandbox.assert.calledOnce(sendStub);
@@ -289,7 +285,7 @@ describe('CognitoClient', () => {
                 .throws(new NotAuthorizedException({message: 'Not Authorized', $metadata: {}}));
 
             try {
-                await CognitoClient.updateUserAttributes({ accessToken: 'mockAccessToken', updateInput: updateUserInput});
+                await CognitoClient.updateUserAttributes({accessToken: 'mockAccessToken', updateInput: updateUserInput});
                 expect.fail('Expected an exception to be thrown');
             } catch (error: any) {
                 sandbox.assert.calledOnce(sendStub);
@@ -304,7 +300,7 @@ describe('CognitoClient', () => {
                 .throws(new UserNotFoundException({message: 'User Not Found', $metadata: {}}));
 
             try {
-                await CognitoClient.updateUserAttributes({ accessToken: 'mockAccessToken', updateInput: updateUserInput});
+                await CognitoClient.updateUserAttributes({accessToken: 'mockAccessToken', updateInput: updateUserInput});
                 expect.fail('Expected an exception to be thrown');
             } catch (error: any) {
                 sandbox.assert.calledOnce(sendStub);
@@ -317,7 +313,7 @@ describe('CognitoClient', () => {
             sendStub.withArgs(sandbox.match.instanceOf(UpdateUserAttributesCommand)).throws(new Error('Some other error'));
 
             try {
-                await CognitoClient.updateUserAttributes({ accessToken: 'mockAccessToken', updateInput: updateUserInput});
+                await CognitoClient.updateUserAttributes({accessToken: 'mockAccessToken', updateInput: updateUserInput});
                 expect.fail('Expected an exception to be thrown');
             } catch (error: any) {
                 sandbox.assert.calledOnce(sendStub);
@@ -515,9 +511,7 @@ describe('CognitoClient', () => {
         });
 
         it('throws expired code exception when Cognito call throws ExpiredCodeException', async () => {
-            sendStub
-                .withArgs(sandbox.match.instanceOf(DeleteUserCommand))
-                .throws(new ExpiredCodeException({message: 'Expired Code', $metadata: {}}));
+            sendStub.withArgs(sandbox.match.instanceOf(DeleteUserCommand)).throws(new ExpiredCodeException({message: 'Expired Code', $metadata: {}}));
 
             try {
                 await CognitoClient.removeAccount({accessToken: 'mockedAccessToken'});
