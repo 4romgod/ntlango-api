@@ -58,7 +58,6 @@ class CognitoClient {
                 {Name: 'family_name', Value: family_name},
                 {Name: 'gender', Value: gender},
                 {Name: 'given_name', Value: given_name},
-                {Name: 'password', Value: password},
                 {Name: 'phone_number', Value: phone_number},
             ],
         };

@@ -6,8 +6,8 @@
   "scripts": {
     "build": "npm run lint && npm run test && tsc --pretty",
     "clean": "rm -rf generated-client dist coverage .nyc_output",
-    "start": "npm run build && node --trace-warnings dist/index.js",
-    "dev": "nodemon ./lib/index.ts",
+    "start": "npm run build && node --trace-warnings dist/lib/server.js",
+    "dev": "nodemon ./lib/server.ts",
     "test": "nyc mocha --exit",
     "watch": "nyc mocha",
     "lint": "eslint lib/* --ext .ts --fix",
