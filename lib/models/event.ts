@@ -1,9 +1,5 @@
-import {CreateEventInput} from '@ntlango/api-client';
+import {IEvent} from '@ntlango/api-client';
 import {model, Schema} from 'mongoose';
-
-export type IEvent = CreateEventInput & {
-    _id: string;
-};
 
 const EventSchema = new Schema<IEvent>(
     {

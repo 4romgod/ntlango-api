@@ -1,9 +1,8 @@
 import {Request, Response} from 'express';
 import {EventDAO} from '../dao';
-import {CreateEventInput, UpdateEventInput} from '@ntlango/api-client';
-import {IEvent} from '../models';
-import slugify from 'slugify';
+import {CreateEventInput, UpdateEventInput, IEvent} from '@ntlango/api-client';
 import {InvalidArgumentException, HttpStatusCode} from '../utils';
+import slugify from 'slugify';
 
 class EventController {
     static async createEvent(req: Request, res: Response, next: any) {

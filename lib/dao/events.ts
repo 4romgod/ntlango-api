@@ -1,10 +1,15 @@
-import {UpdateEventInput} from '@ntlango/api-client';
-import Event, {IEvent} from '../models/event';
-import {ResourceNotFoundException} from '../utils';
+import {UpdateEventInput, IEvent} from '@ntlango/api-client';
+import {ResourceNotFoundException, mongodbErrorHandler} from '../utils';
+import Event from '../models/event';
 
 class EventDAO {
     static async create(eventData: IEvent): Promise<IEvent> {
-        return await Event.create(eventData);
+        try {
+            return await Event.create(eventData);
+        } catch (error) {
+            console.log(error);
+            throw mongodbErrorHandler(error);
+        }
     }
 
     static async readEventById(eventId: string, projections?: Array<string>): Promise<IEvent> {

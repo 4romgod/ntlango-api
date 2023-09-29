@@ -1,10 +1,9 @@
 import {expect} from 'chai';
 import {SinonStub, createSandbox} from 'sinon';
 import {EventDAO} from '../../lib/dao';
-import {IEvent} from '../../lib/models';
 import Event from '../../lib/models/event';
 import {HttpStatusCode} from '../../lib/utils';
-import {EventStatus, UpdateEventInput} from '@ntlango/api-client';
+import {EventStatus, UpdateEventInput, IEvent} from '@ntlango/api-client';
 
 describe('Event DAO', () => {
     const sandbox = createSandbox();
