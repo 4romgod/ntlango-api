@@ -1,18 +1,15 @@
 import {Request, Response} from 'express';
-import {HttpStatusCode, MONGO_DB_URL} from '../utils';
-import {MongoDbClient} from '../clients';
+import {HttpStatusCode} from '../utils';
 import {HealthCheckState, HealthCheckResponse} from '@ntlango/api-client';
 
 class HealthCheckController {
     static async healthCheck(req: Request, res: Response) {
         try {
-            await MongoDbClient.connectToDatabase(MONGO_DB_URL);
             const healthcheck: HealthCheckResponse = {
                 uptime: process.uptime(),
                 state: HealthCheckState.Healthy,
                 timestamp: Date.now(),
             };
-            await MongoDbClient.disconnectFromDatabase();
             return res.status(HttpStatusCode.OK).json(healthcheck);
         } catch (error) {
             console.error('Error during health check:', error);
