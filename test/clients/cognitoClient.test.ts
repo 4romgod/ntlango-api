@@ -22,6 +22,7 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import {LoginInput, RegisterInput, UpdateUserInput} from '@ntlango/api-client';
 import {CognitoIdentityProviderClient} from '@aws-sdk/client-cognito-identity-provider';
+import {convertUpdateUserToUserAttributes} from '../../lib/utils';
 
 describe('CognitoClient', () => {
     const sandbox = createSandbox();
@@ -52,10 +53,9 @@ describe('CognitoClient', () => {
     };
 
     const updateUserInput: UpdateUserInput = {
-        attributes: [
-            {Name: 'mockName1', Value: 'mockValue1'},
-            {Name: 'mockName2', Value: 'mockValue2'},
-        ],
+        address: 'mockAddress',
+        email: 'mockEmail',
+        family_name: 'mockFamilyName',
     };
 
     beforeEach(() => {
@@ -253,14 +253,15 @@ describe('CognitoClient', () => {
         it('updates a user when cognito call succeeds', async () => {
             sendStub.withArgs(sandbox.match.instanceOf(UpdateUserAttributesCommand)).resolves({});
             sendStub.withArgs(sandbox.match.instanceOf(GetUserCommand)).resolves({
-                UserAttributes: updateUserInput.attributes,
+                UserAttributes: convertUpdateUserToUserAttributes(updateUserInput),
             });
 
             const result = await CognitoClient.updateUserAttributes({accessToken: 'mockAccessToken', updateInput: updateUserInput});
             sandbox.assert.calledTwice(sendStub);
             expect(result).to.deep.equal({
-                mockName1: 'mockValue1',
-                mockName2: 'mockValue2',
+                address: 'mockAddress',
+                email: 'mockEmail',
+                family_name: 'mockFamilyName',
             });
         });
 

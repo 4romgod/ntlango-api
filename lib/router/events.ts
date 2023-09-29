@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import {EventController} from '../controller';
-import {eventsValidator, isInputValid} from '../utils/validators';
+import {eventsValidator, isInputValid} from '../utils';
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-import {NtlangoError, ResourceNotFoundException} from '../utils/exceptions';
+import {NtlangoError, ResourceNotFoundException} from '../utils';
 import {Request, Response} from 'express';
 import {HttpStatusCode} from './constants';
 

@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {HttpStatusCode} from '../utils/constants';
+import {HttpStatusCode} from '../utils';
 import {CognitoClient} from '../clients';
 import {ConfirmForgotPasswordInput, UpdateUserInput} from '@ntlango/api-client';
 

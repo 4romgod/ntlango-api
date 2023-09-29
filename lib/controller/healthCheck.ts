@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {HttpStatusCode, MONGO_DB_URL} from '../utils/constants';
+import {HttpStatusCode, MONGO_DB_URL} from '../utils';
 import {MongoDbClient} from '../clients';
 import {HealthCheckState, HealthCheckResponse} from '@ntlango/api-client';
 

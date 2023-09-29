@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {EventController} from '../../lib/controller';
-import {HttpStatusCode} from '../../lib/utils/constants';
+import {HttpStatusCode} from '../../lib/utils';
 import {SinonStub, createSandbox} from 'sinon';
 import {EventDAO} from '../../lib/dao';
 import {EventStatus} from '../../lib/models';

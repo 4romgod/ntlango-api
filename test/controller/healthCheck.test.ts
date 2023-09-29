@@ -2,7 +2,8 @@ import {expect} from 'chai';
 import {SinonStub, createSandbox} from 'sinon';
 import {HealthCheckController} from '../../lib/controller';
 import {MongoDbClient} from '../../lib/clients';
-import {MONGO_DB_URL} from '../../lib/utils/constants';
+import {MONGO_DB_URL} from '../../lib/utils';
+import {HealthCheckState} from '@ntlango/api-client';
 
 describe('HealthCheck Controller', () => {
     const sandbox = createSandbox();
@@ -40,7 +41,7 @@ describe('HealthCheck Controller', () => {
             expect(
                 res.json.calledOnceWith(
                     sandbox.match({
-                        message: 'healthy',
+                        state: HealthCheckState.Healthy,
                     }),
                 ),
             ).to.be.true;
@@ -56,7 +57,7 @@ describe('HealthCheck Controller', () => {
             expect(
                 res.json.calledOnceWith(
                     sandbox.match({
-                        message: 'unhealthy',
+                        state: HealthCheckState.Unhealthy,
                     }),
                 ),
             ).to.be.true;

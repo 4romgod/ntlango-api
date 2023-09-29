@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {createSandbox, SinonSandbox, SinonSpy, SinonStub} from 'sinon';
 import {ProfileController} from '../../lib/controller';
-import {HttpStatusCode} from '../../lib/utils/constants';
+import {HttpStatusCode} from '../../lib/utils';
 import {CognitoClient} from '../../lib/clients';
 
 describe('ProfileController', () => {

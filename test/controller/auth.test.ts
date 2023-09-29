@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {AuthController} from '../../lib/controller';
-import {HttpStatusCode} from '../../lib/utils/constants';
+import {HttpStatusCode} from '../../lib/utils';
 import {SinonSpy, SinonStub, createSandbox} from 'sinon';
 import {CognitoClient} from '../../lib/clients';
 

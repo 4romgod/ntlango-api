@@ -20,9 +20,18 @@ import {
     CodeMismatchException,
     ExpiredCodeException,
 } from '@aws-sdk/client-cognito-identity-provider';
-import {InternalServiceErrorException, InvalidArgumentException, ResourceNotFoundException, UnauthorizedException} from '../utils/exceptions';
-import {AWS_REGION, COGNITO_CLIENT_ID, COGNITO_USER_POOL_ID, NUMBER_OF_RETRIES} from '../utils/constants';
-import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput, UpdateUserInput} from '@ntlango/api-client'; //TODO install @ntlango/client rather using npm links
+import {
+    AWS_REGION,
+    COGNITO_CLIENT_ID,
+    COGNITO_USER_POOL_ID,
+    NUMBER_OF_RETRIES,
+    convertUpdateUserToUserAttributes,
+    InternalServiceErrorException,
+    InvalidArgumentException,
+    ResourceNotFoundException,
+    UnauthorizedException,
+} from '../utils';
+import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput, UpdateUserInput} from '@ntlango/api-client';
 
 export interface IUserToken {
     accessToken?: string;
@@ -134,7 +143,7 @@ class CognitoClient {
         try {
             const updateParams: UpdateUserAttributesCommandInput = {
                 AccessToken: accessToken,
-                UserAttributes: updateInput.attributes,
+                UserAttributes: convertUpdateUserToUserAttributes(updateInput),
             };
             await this.cognitoIsp.send(new UpdateUserAttributesCommand(updateParams));
 

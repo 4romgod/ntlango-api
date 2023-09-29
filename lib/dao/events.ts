@@ -1,5 +1,5 @@
 import Event, {IEvent, UpdateEventInput} from '../models/event';
-import {ResourceNotFoundException} from '../utils/exceptions';
+import {ResourceNotFoundException} from '../utils';
 
 class EventDAO {
     static async create(eventData: IEvent): Promise<IEvent> {

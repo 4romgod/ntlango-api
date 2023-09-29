@@ -1,9 +1,8 @@
 import {Request, Response} from 'express';
-import {HttpStatusCode} from '../utils/constants';
 import {EventDAO} from '../dao';
 import {CreateEventInput, IEvent, UpdateEventInput} from '../models';
 import slugify from 'slugify';
-import {InvalidArgumentException} from '../utils/exceptions';
+import {InvalidArgumentException, HttpStatusCode} from '../utils';
 
 class EventController {
     static async createEvent(req: Request, res: Response, next: any) {
