@@ -1,4 +1,5 @@
-import Event, {IEvent, UpdateEventInput} from '../models/event';
+import {UpdateEventInput} from '@ntlango/api-client';
+import Event, {IEvent} from '../models/event';
 import {ResourceNotFoundException} from '../utils';
 
 class EventDAO {

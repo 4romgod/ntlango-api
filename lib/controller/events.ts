@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import {EventDAO} from '../dao';
-import {CreateEventInput, IEvent, UpdateEventInput} from '../models';
+import {CreateEventInput, UpdateEventInput} from '@ntlango/api-client';
+import {IEvent} from '../models';
 import slugify from 'slugify';
 import {InvalidArgumentException, HttpStatusCode} from '../utils';
 
