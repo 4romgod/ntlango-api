@@ -1,15 +1,16 @@
 import {Router} from 'express';
 import {EventController} from '../controller';
-import {eventsValidator, isInputValid} from '../utils';
+import {EventValidators, isInputValid} from '../middleware/validators';
+import {EventPreprocess} from '../middleware/preprocess';
 
 const router = Router();
 
-router.post('/events', eventsValidator.createEvent, isInputValid, EventController.createEvent);
-router.get('/events', EventController.getEvents);
+router.post('/events', EventValidators.createEvent, isInputValid, EventController.createEvent);
+router.get('/events', EventValidators.readEvents, isInputValid, EventPreprocess.readEvents, EventController.getEvents);
 router.get('/events/:eventId', EventController.getEventById);
-router.put('/events/:eventId', EventController.updateEvent);
+router.put('/events/:eventId', EventValidators.updateEvent, isInputValid, EventController.updateEvent);
 router.delete('/events/:eventId', EventController.deleteEvent);
-router.post('/events/:eventId/rsvp', EventController.rsvpToEvent);
-router.post('/events/:eventId/cancelrsvp', EventController.cancelRsvpToEvent);
+router.put('/events/:eventId/rsvp', EventController.rsvpToEvent);
+router.put('/events/:eventId/cancelrsvp', EventController.cancelRsvpToEvent);
 
 export default router;

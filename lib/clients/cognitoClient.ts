@@ -19,6 +19,7 @@ import {
     UserNotFoundException,
     CodeMismatchException,
     ExpiredCodeException,
+    ConfirmForgotPasswordCommandInput,
 } from '@aws-sdk/client-cognito-identity-provider';
 import {
     AWS_REGION,
@@ -190,7 +191,7 @@ class CognitoClient {
     static async confirmForgotPassword(input: ConfirmForgotPasswordInput): Promise<{message: string}> {
         const {email, password, code} = input;
 
-        const params = {
+        const params: ConfirmForgotPasswordCommandInput = {
             ClientId: COGNITO_CLIENT_ID,
             Username: email,
             Password: password,

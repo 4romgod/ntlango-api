@@ -2,6 +2,8 @@ import {UpdateEventInput, IEvent} from '@ntlango/api-client';
 import {ResourceNotFoundException, mongodbErrorHandler} from '../utils';
 import Event from '../models/event';
 
+export type EventQueryParams = Partial<Record<keyof IEvent, any>>;
+
 class EventDAO {
     static async create(eventData: IEvent): Promise<IEvent> {
         try {
@@ -25,7 +27,7 @@ class EventDAO {
         return event;
     }
 
-    static async readEvents(queryParams?: any, projections?: Array<string>): Promise<Array<IEvent>> {
+    static async readEvents(queryParams?: EventQueryParams, projections?: Array<string>): Promise<Array<IEvent>> {
         const query = Event.find({...queryParams});
         if (projections && projections.length) {
             query.select(projections.join(' '));

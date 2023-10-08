@@ -3,8 +3,8 @@ import {model, Schema} from 'mongoose';
 
 const EventSchema = new Schema<IEvent>(
     {
-        _id: {type: String, required: true},
-        title: {type: String, required: true},
+        _id: {type: String, required: true, unique: true},
+        title: {type: String, required: true, unique: true},
         description: {type: String, required: false},
         startDate: {type: String},
         endDate: {type: String},

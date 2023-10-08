@@ -138,7 +138,7 @@ describe('Event Controller', () => {
         });
 
         it('should return matching events when called with projections and query params', async () => {
-            req.query = {status: EventStatus.Ongoing, projections: 'title,description'};
+            req.parsedQueryParams = {status: EventStatus.Ongoing, projections: ['title', 'description']};
 
             const mockResponse = [{_id: 'eventId', title: 'Sample Event', description: 'Sample desc'}];
             readEventsStub.resolves(mockResponse);
@@ -152,7 +152,7 @@ describe('Event Controller', () => {
         });
 
         it('should return matching events when called with projections and without query params', async () => {
-            req.query = {projections: 'title,description'};
+            req.parsedQueryParams = {projections: ['title', 'description']};
 
             const mockResponse = [{_id: 'eventId', title: 'Sample Event', description: 'Sample desc'}];
             readEventsStub.resolves(mockResponse);
@@ -166,7 +166,7 @@ describe('Event Controller', () => {
         });
 
         it('should return matching events with query params and without projections', async () => {
-            req.query = {status: EventStatus.Ongoing};
+            req.parsedQueryParams = {status: EventStatus.Ongoing};
 
             const mockResponse = [{_id: 'eventId', title: 'Sample Event'}];
             readEventsStub.resolves(mockResponse);
@@ -175,12 +175,12 @@ describe('Event Controller', () => {
 
             expect(res.status.calledOnceWithExactly(HttpStatusCode.OK)).to.be.true;
             expect(res.json.calledOnceWithExactly(mockResponse)).to.be.true;
-            expect(readEventsStub.calledOnceWithExactly({status: EventStatus.Ongoing}, [])).to.be.true;
+            expect(readEventsStub.calledOnceWith({status: EventStatus.Ongoing})).to.be.true;
             expect(next.notCalled).to.be.true;
         });
 
         it('should return matching events without both projections and query params', async () => {
-            req.query = {};
+            req.parsedQueryParams = {};
 
             const mockResponse = [{_id: 'eventId', title: 'Sample Event'}];
             readEventsStub.resolves(mockResponse);
@@ -188,13 +188,13 @@ describe('Event Controller', () => {
             await EventController.getEvents(req, res, next);
 
             expect(res.status.calledOnceWithExactly(HttpStatusCode.OK)).to.be.true;
-            expect(res.json.calledOnceWithExactly(mockResponse)).to.be.true;
-            expect(readEventsStub.calledOnceWithExactly({}, [])).to.be.true;
+            expect(res.json.calledOnceWith(mockResponse)).to.be.true;
+            expect(readEventsStub.calledOnceWith({})).to.be.true;
             expect(next.notCalled).to.be.true;
         });
 
         it('should handle errors and call next', async () => {
-            req.query = {status: EventStatus.Ongoing, projections: 'title,description'};
+            req.parsedQueryParams = {status: EventStatus.Ongoing, projections: ['title', 'description']};
 
             readEventsStub.rejects(new Error('Failed to fetch events'));
 

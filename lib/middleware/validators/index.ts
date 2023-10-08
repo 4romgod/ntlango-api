@@ -1,10 +1,7 @@
 import {validationResult} from 'express-validator';
 import {Request, Response} from 'express';
-import {HttpStatusCode} from '../constants';
-import {InvalidArgumentException} from '../exceptions';
-import authValidator from './auth';
-import eventsValidator from './events';
-import profileValidator from './profile';
+import {HttpStatusCode} from '../../utils/constants';
+import {InvalidArgumentException} from '../../utils/exceptions';
 
 const isInputValid = (req: Request, res: Response, next: any) => {
     console.log('validating input...');
@@ -18,4 +15,7 @@ const isInputValid = (req: Request, res: Response, next: any) => {
     next();
 };
 
-export {authValidator, eventsValidator, profileValidator, isInputValid};
+export {isInputValid};
+export {default as AuthValidators} from './auth';
+export {default as EventValidators} from './events';
+export {default as ProfileValidators} from './profile';

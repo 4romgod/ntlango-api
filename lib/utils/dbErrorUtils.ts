@@ -6,7 +6,7 @@ import {InternalServiceErrorException, InvalidArgumentException, NtlangoError} f
 export const uniqueMessage = (error: any) => {
     let output;
     try {
-        let fieldName = error.message.substring(error.message.lastIndexOf('.$') + 2, error.message.lastIndexOf('_1'));
+        const fieldName = error.message.substring(error.message.lastIndexOf('.$') + 2, error.message.lastIndexOf('_1'));
         output = fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + ' already exists';
     } catch (ex) {
         output = 'Unique field already exists';
@@ -24,10 +24,11 @@ export const mongodbErrorHandler = (error: any): NtlangoError => {
     const {code, keyValue} = error;
     if (code) {
         switch (code) {
-            case 11000:
+            case 11000: {
                 const key = Object.keys(keyValue)[0];
                 message = `(${key} = ${keyValue[key]}), already exists`;
                 return InvalidArgumentException(message);
+            }
             case 11001:
                 message = uniqueMessage(error);
                 return InvalidArgumentException(message);
@@ -40,8 +41,11 @@ export const mongodbErrorHandler = (error: any): NtlangoError => {
         }
     }
 
-    for (let errorName in error.errorors) {
-        if (error.errorors[errorName].message) message = error.errorors[errorName].message;
+    for (const errorName in error.errorors) {
+        if (error.errorors[errorName].message) {
+            message = error.errorors[errorName].message;
+            break;
+        }
     }
     return InternalServiceErrorException(message);
 };
