@@ -14,6 +14,7 @@ class AuthController {
 
     static async register(req: Request, res: Response, next: any) {
         const registerInput: RegisterInput = req.body;
+        console.log(registerInput);
         try {
             const cognitoRes = await CognitoClient.register(registerInput);
             return res.status(HttpStatusCode.OK).json(cognitoRes);

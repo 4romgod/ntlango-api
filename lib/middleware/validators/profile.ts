@@ -31,7 +31,7 @@ class ProfileValidators {
             .withMessage('Invalid access token provided'),
     ];
 
-    static adminRemoveProfile = [check('username').notEmpty().withMessage('Provide A Username')];
+    static adminRemoveProfile = [check('userId').notEmpty().withMessage('Provide A User ID')];
 }
 
 export default ProfileValidators;

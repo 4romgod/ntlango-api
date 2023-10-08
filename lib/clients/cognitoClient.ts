@@ -20,6 +20,8 @@ import {
     CodeMismatchException,
     ExpiredCodeException,
     ConfirmForgotPasswordCommandInput,
+    AttributeType,
+    AdminDeleteUserCommandInput,
 } from '@aws-sdk/client-cognito-identity-provider';
 import {
     AWS_REGION,
@@ -55,21 +57,24 @@ class CognitoClient {
     }
 
     static async register(user: RegisterInput): Promise<{message: string; userSub: string}> {
-        const {address, birthdate, email, family_name, gender, given_name, password, phone_number} = user;
+        const {address, birthdate, email, family_name, gender, given_name, password, phone_number, preferred_username, website} = user;
+
+        const userAttributes: AttributeType[] = [];
+        address && userAttributes.push({Name: 'address', Value: address});
+        birthdate && userAttributes.push({Name: 'birthdate', Value: birthdate});
+        email && userAttributes.push({Name: 'email', Value: email});
+        family_name && userAttributes.push({Name: 'family_name', Value: family_name});
+        gender && userAttributes.push({Name: 'gender', Value: gender});
+        given_name && userAttributes.push({Name: 'given_name', Value: given_name});
+        phone_number && userAttributes.push({Name: 'phone_number', Value: phone_number});
+        preferred_username && userAttributes.push({Name: 'preferred_username', Value: preferred_username});
+        website && userAttributes.push({Name: 'website', Value: website});
 
         const params: SignUpRequest = {
             ClientId: `${COGNITO_CLIENT_ID}`,
             Username: email,
             Password: password,
-            UserAttributes: [
-                {Name: 'address', Value: address},
-                {Name: 'birthdate', Value: birthdate},
-                {Name: 'email', Value: email},
-                {Name: 'family_name', Value: family_name},
-                {Name: 'gender', Value: gender},
-                {Name: 'given_name', Value: given_name},
-                {Name: 'phone_number', Value: phone_number},
-            ],
+            UserAttributes: userAttributes,
         };
         try {
             const {UserSub} = await this.cognitoIsp.send(new SignUpCommand(params));
@@ -234,7 +239,7 @@ class CognitoClient {
     }
 
     static async adminRemoveAccount({userId}: {userId: string}): Promise<{message: string}> {
-        const params = {
+        const params: AdminDeleteUserCommandInput = {
             UserPoolId: COGNITO_USER_POOL_ID,
             Username: userId,
         };

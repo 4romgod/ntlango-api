@@ -13,6 +13,7 @@ const isProjectionsPattern = (value: string | undefined) => {
     return true;
 };
 
+// TODO ADD all validators
 class EventValidators {
     static createEvent = [
         check('title').notEmpty().withMessage('Title is required'),
