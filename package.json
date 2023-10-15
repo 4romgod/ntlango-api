@@ -2,7 +2,8 @@
   "name": "@ntlango/api",
   "version": "1.0.0",
   "description": "This repository contains the business logic for the API",
-  "main": "./dist/server.js",
+  "main": "dist/lib/server.js",
+  "types": "dist/types/lib/server.d.ts",
   "scripts": {
     "build": "npm run test && tsc --pretty",
     "clean": "rm -rf generated-client dist coverage .nyc_output",
@@ -42,7 +43,7 @@
     "express-validator": "^6.14.2",
     "mongoose": "^7.4.5",
     "neo4j-driver": "^4.4.7",
-    "ntlango-api-client": "^1.0.0",
+    "ntlango-api-client": "^1.0.1",
     "slugify": "^1.6.6"
   },
   "devDependencies": {
