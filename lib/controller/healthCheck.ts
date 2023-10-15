@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../utils';
-import {HealthCheckState, HealthCheckResponse} from '@ntlango/api-client';
+import {HealthCheckState, HealthCheckResponse} from 'ntlango-api-client';
 
 class HealthCheckController {
     static async healthCheck(req: Request, res: Response) {
