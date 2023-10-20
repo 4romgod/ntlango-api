@@ -5,9 +5,9 @@
   "main": "dist/lib/server.js",
   "types": "dist/types/lib/server.d.ts",
   "scripts": {
-    "build": "npm run test && tsc --pretty",
+    "build": "yarn run test && tsc --pretty",
     "clean": "rm -rf generated-client dist coverage .nyc_output",
-    "start": "npm run build && node --trace-warnings dist/lib/server.js",
+    "start": "yarn run build && node --trace-warnings dist/lib/server.js",
     "dev": "nodemon ./lib/server.ts",
     "test": "nyc mocha --exit",
     "watch": "nyc mocha",
