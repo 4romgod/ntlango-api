@@ -20,7 +20,7 @@ import {
     ResendConfirmationCodeCommand,
     AdminDeleteUserCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import {LoginInput, RegisterInput, UpdateUserInput} from '@ntlango/api-client';
+import {LoginInput, RegisterInput, UpdateUserInput} from 'ntlango-api-client';
 import {CognitoIdentityProviderClient} from '@aws-sdk/client-cognito-identity-provider';
 import {convertUpdateUserToUserAttributes} from '../../lib/utils';
 

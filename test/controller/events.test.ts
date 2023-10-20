@@ -3,7 +3,7 @@ import {EventController} from '../../lib/controller';
 import {HttpStatusCode} from '../../lib/utils';
 import {SinonStub, createSandbox} from 'sinon';
 import {EventDAO} from '../../lib/dao';
-import {EventStatus} from '@ntlango/api-client';
+import {EventStatus} from 'ntlango-api-client';
 import slugify from 'slugify';
 
 describe('Event Controller', () => {

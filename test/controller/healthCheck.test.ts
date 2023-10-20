@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {createSandbox} from 'sinon';
 import {HealthCheckController} from '../../lib/controller';
-import {HealthCheckState} from '@ntlango/api-client';
+import {HealthCheckState} from 'ntlango-api-client';
 
 describe('HealthCheck Controller', () => {
     const sandbox = createSandbox();
