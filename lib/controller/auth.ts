@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../utils';
 import {CognitoClient} from '../clients';
-import {LoginInput, RegisterInput} from '@ntlango/api-client';
+import {LoginInput, RegisterInput} from 'ntlango-api-client';
 
 class AuthController {
     private static cognitoClient: CognitoClient;

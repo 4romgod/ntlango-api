@@ -1,4 +1,4 @@
-import {EventCategory, EventPrivacySetting, EventStatus, EventType} from '@ntlango/api-client';
+import {EventCategory, EventPrivacySetting, EventStatus, EventType} from 'ntlango-api-client';
 import {check, query} from 'express-validator';
 import {InvalidArgumentException} from '../../utils/exceptions';
 

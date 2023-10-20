@@ -1,4 +1,4 @@
-import {UpdateEventInput, IEvent} from '@ntlango/api-client';
+import {UpdateEventInput, IEvent} from 'ntlango-api-client';
 import {ResourceNotFoundException, mongodbErrorHandler} from '../utils';
 import Event from '../models/event';
 

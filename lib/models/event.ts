@@ -1,4 +1,4 @@
-import {IEvent} from '@ntlango/api-client';
+import {IEvent} from 'ntlango-api-client';
 import {model, Schema} from 'mongoose';
 
 const EventSchema = new Schema<IEvent>(
