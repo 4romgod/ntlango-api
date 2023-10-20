@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../utils';
 import {CognitoClient} from '../clients';
-import {ConfirmForgotPasswordInput, UpdateUserInput} from '@ntlango/api-client';
+import {ConfirmForgotPasswordInput, UpdateUserInput} from 'ntlango-api-client';
 
 class ProfileController {
     private static cognitoClient: CognitoClient;

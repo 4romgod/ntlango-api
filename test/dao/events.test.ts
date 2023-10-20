@@ -3,7 +3,7 @@ import {SinonStub, createSandbox} from 'sinon';
 import {EventDAO} from '../../lib/dao';
 import Event from '../../lib/models/event';
 import {HttpStatusCode} from '../../lib/utils';
-import {EventStatus, UpdateEventInput, IEvent} from '@ntlango/api-client';
+import {EventStatus, UpdateEventInput, IEvent} from 'ntlango-api-client';
 
 describe('Event DAO', () => {
     const sandbox = createSandbox();
