@@ -34,7 +34,7 @@ import {
     ResourceNotFoundException,
     UnauthorizedException,
 } from '../utils';
-import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput, UpdateUserInput} from '@ntlango/api-client';
+import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput, UpdateUserInput} from 'ntlango-api-client';
 
 export interface IUserToken {
     accessToken?: string;
