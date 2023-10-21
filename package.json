@@ -43,7 +43,7 @@
     "express-validator": "^6.14.2",
     "mongoose": "^7.4.5",
     "neo4j-driver": "^4.4.7",
-    "ntlango-api-client": "^1.0.1",
+    "ntlango-api-client": "*",
     "slugify": "^1.6.6"
   },
   "devDependencies": {

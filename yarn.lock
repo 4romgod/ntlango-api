@@ -3948,7 +3948,7 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
-ntlango-api-client@^1.0.1:
+ntlango-api-client@*:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/ntlango-api-client/-/ntlango-api-client-1.0.1.tgz#afe2b5b7dc261afc9eabba581b06a9aa8b1890d3"
   integrity sha512-SUEhqJGKVwRghbk5rhwG0X1iysGpa3jljSjRwDv7fsTQHTuPzOsRUDThQ0UcJpAT8MqtfhuVgth5hMbMAmPBRg==
