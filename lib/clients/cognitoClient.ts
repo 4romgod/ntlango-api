@@ -1,6 +1,7 @@
 import {
     CognitoIdentityProviderClient,
     SignUpCommand,
+    ConfirmSignUpCommand,
     InitiateAuthCommand,
     GlobalSignOutCommand,
     UpdateUserAttributesCommand,
@@ -34,7 +35,7 @@ import {
     ResourceNotFoundException,
     UnauthorizedException,
 } from '../utils';
-import {RegisterInput, LoginInput, ForgotPasswordInput, ConfirmForgotPasswordInput, UpdateUserInput} from 'ntlango-api-client';
+import {UserRegisterInput, UserLoginInput, UserForgotPasswordInput, UserConfirmForgotPasswordInput, UserUpdateInput} from 'ntlango-api-client';
 
 export interface IUserToken {
     accessToken?: string;
@@ -56,7 +57,7 @@ class CognitoClient {
         }
     }
 
-    static async register(user: RegisterInput): Promise<{message: string; userSub: string}> {
+    static async register(user: UserRegisterInput): Promise<{message: string; userSub: string}> {
         const {address, birthdate, email, family_name, gender, given_name, password, phone_number, preferred_username, website} = user;
 
         const userAttributes: AttributeType[] = [];
@@ -93,7 +94,29 @@ class CognitoClient {
         }
     }
 
-    static async login(input: LoginInput): Promise<IUserToken> {
+    static async confirmSignUp(email: string, code: string): Promise<{message: string}> {
+        const params = {
+            ClientId: `${COGNITO_CLIENT_ID}`,
+            Username: email,
+            ConfirmationCode: code,
+        };
+        try {
+            await this.cognitoIsp.send(new ConfirmSignUpCommand(params));
+            return {message: 'User sign-up confirmed successfully'};
+        } catch (error: any) {
+            console.error('Error while confirming sign-up', error);
+            if (error instanceof CodeMismatchException) {
+                throw InvalidArgumentException(error.message);
+            } else if (error instanceof NotAuthorizedException) {
+                throw UnauthorizedException(error.message);
+            } else if (error instanceof UserNotFoundException) {
+                throw ResourceNotFoundException(error.message);
+            }
+            throw InternalServiceErrorException(error.message);
+        }
+    }
+
+    static async login(input: UserLoginInput): Promise<IUserToken> {
         const {email, password} = input;
 
         const params: InitiateAuthCommandInput = {
@@ -145,7 +168,7 @@ class CognitoClient {
         }
     }
 
-    static async updateUserAttributes({accessToken, updateInput}: {accessToken: string; updateInput: UpdateUserInput}): Promise<any> {
+    static async updateUserAttributes({accessToken, updateInput}: {accessToken: string; updateInput: UserUpdateInput}): Promise<any> {
         try {
             const updateParams: UpdateUserAttributesCommandInput = {
                 AccessToken: accessToken,
@@ -172,7 +195,7 @@ class CognitoClient {
         }
     }
 
-    static async forgotPassword(input: ForgotPasswordInput): Promise<{message: string}> {
+    static async forgotPassword(input: UserForgotPasswordInput): Promise<{message: string}> {
         const params = {
             ClientId: COGNITO_CLIENT_ID,
             Username: input.email,
@@ -193,7 +216,7 @@ class CognitoClient {
         }
     }
 
-    static async confirmForgotPassword(input: ConfirmForgotPasswordInput): Promise<{message: string}> {
+    static async confirmForgotPassword(input: UserConfirmForgotPasswordInput): Promise<{message: string}> {
         const {email, password, code} = input;
 
         const params: ConfirmForgotPasswordCommandInput = {

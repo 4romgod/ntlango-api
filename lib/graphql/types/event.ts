@@ -1,4 +1,6 @@
 import {GraphQLObjectType, GraphQLString, GraphQLID, GraphQLInt, GraphQLList, GraphQLNonNull} from 'graphql';
+import UserType from './user';
+import {UserDAO} from '../../dao';
 
 const EventPrivacySettingType = new GraphQLObjectType({
     name: 'EventPrivacySettingType',
@@ -36,16 +38,29 @@ const EventType = new GraphQLObjectType({
     name: 'Event',
     fields: {
         _id: {type: new GraphQLNonNull(GraphQLID)},
+        eventID: {type: new GraphQLNonNull(GraphQLID)},
         title: {type: new GraphQLNonNull(GraphQLString)},
         description: {type: new GraphQLNonNull(GraphQLString)},
         startDate: {type: GraphQLString},
         endDate: {type: GraphQLString},
         location: {type: GraphQLString},
-        organizers: {type: new GraphQLList(GraphQLString)},
+        organizers: {
+            type: new GraphQLList(UserType),
+            resolve(parent, args, context, resolveInfo) {
+                console.log(parent);
+                return UserDAO.readUsers({userIDList: parent.organizers});
+            },
+        },
         eventType: {type: EventTypeType},
         eventCategory: {type: EventCategoryType},
         capacity: {type: GraphQLInt},
-        rSVPs: {type: new GraphQLList(GraphQLID)},
+        rSVPs: {
+            type: new GraphQLList(GraphQLString),
+            resolve(parent, args, context, resolveInfo) {
+                console.log(parent);
+                return UserDAO.readUsers({userIDList: parent.rSVPs});
+            },
+        },
         eventLink: {type: GraphQLString},
         status: {type: EventStatusType},
         // TODO tags: { type: new GraphQLObjectType({ name: 'TagsType', fields: {} }) },

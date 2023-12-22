@@ -1,0 +1,19 @@
+version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@4.0
+  # https://circleci.com/developer/orbs/orb/circleci/aws-ecr
+  aws-ecr: circleci/aws-ecr@9.0
+workflows:
+  build_and_push_image:
+    jobs:
+      - aws-ecr/build_and_push_image:
+          repo: ntlango-api-ecr-repo
+          tag: "latest,v0.1.${CIRCLE_BUILD_NUM}"
+          dockerfile: Dockerfile
+          path: .
+          account_id: 045383269136
+          push_image: false
+          region: eu-west-1
+          auth:
+            - aws-cli/setup:
+                role_arn: arn:aws:iam::045383269136:role/Admin

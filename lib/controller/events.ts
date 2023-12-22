@@ -1,19 +1,14 @@
 import {Request, Response} from 'express';
 import {EventDAO} from '../dao';
-import {CreateEventInput, UpdateEventInput, IEvent} from 'ntlango-api-client';
+import {EventCreateInput, EventUpdateInput, IEvent} from 'ntlango-api-client';
 import {InvalidArgumentException, HttpStatusCode} from '../utils';
 import slugify from 'slugify';
 
 class EventController {
     static async createEvent(req: Request, res: Response, next: any) {
         try {
-            const requestBody: CreateEventInput = req.body;
-            const eventData: IEvent = {
-                ...requestBody,
-                _id: slugify(requestBody.title),
-            };
-
-            const createdEvent = await EventDAO.create(eventData);
+            const requestBody: EventCreateInput = req.body;
+            const createdEvent = await EventDAO.create(requestBody);
             res.status(HttpStatusCode.CREATED).json(createdEvent);
         } catch (error) {
             next(error);
@@ -44,7 +39,7 @@ class EventController {
     static async updateEvent(req: Request, res: Response, next: any) {
         try {
             const {eventId} = req.params;
-            const eventData: UpdateEventInput = req.body;
+            const eventData: EventUpdateInput = req.body;
             const updatedEvent = await EventDAO.updateEvent(eventId, eventData);
             res.status(HttpStatusCode.OK).json(updatedEvent);
         } catch (error) {

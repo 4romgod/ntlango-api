@@ -6,6 +6,7 @@ const router = Router();
 
 AuthController.initialize();
 router.post('/auth/register', AuthValidators.register, isInputValid, AuthController.register);
+router.post('/auth/register/confirm', AuthValidators.confirmRegistration, isInputValid, AuthController.confirmRegistration);
 router.post('/auth/login', AuthValidators.login, isInputValid, AuthController.login);
 router.post('/auth/logout', AuthController.logout);
 

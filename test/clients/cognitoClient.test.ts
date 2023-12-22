@@ -20,7 +20,7 @@ import {
     ResendConfirmationCodeCommand,
     AdminDeleteUserCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import {LoginInput, RegisterInput, UpdateUserInput} from 'ntlango-api-client';
+import {UserLoginInput, UserRegisterInput, UserUpdateInput} from 'ntlango-api-client';
 import {CognitoIdentityProviderClient} from '@aws-sdk/client-cognito-identity-provider';
 import {convertUpdateUserToUserAttributes} from '../../lib/utils';
 
@@ -36,7 +36,8 @@ describe('CognitoClient', () => {
         TokenType: 'Bearer',
     };
 
-    const registerInput: RegisterInput = {
+    const registerInput: UserRegisterInput = {
+        userID: 'mockUserId',
         address: '123 Main St',
         birthdate: '1990-01-01',
         email: 'user@example.com',
@@ -47,12 +48,12 @@ describe('CognitoClient', () => {
         phone_number: '+1234567890',
     };
 
-    const loginInput: LoginInput = {
+    const loginInput: UserLoginInput = {
         email: 'mockEmail',
         password: 'mockPassword',
     };
 
-    const updateUserInput: UpdateUserInput = {
+    const updateUserInput: UserUpdateInput = {
         address: 'mockAddress',
         email: 'mockEmail',
         family_name: 'mockFamilyName',

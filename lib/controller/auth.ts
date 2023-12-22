@@ -1,7 +1,8 @@
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../utils';
 import {CognitoClient} from '../clients';
-import {LoginInput, RegisterInput} from 'ntlango-api-client';
+import {UserLoginInput, UserRegisterInput} from 'ntlango-api-client';
+import UserDAO from '../dao/user';
 
 class AuthController {
     private static cognitoClient: CognitoClient;
@@ -13,11 +14,36 @@ class AuthController {
     }
 
     static async register(req: Request, res: Response, next: any) {
-        const registerInput: RegisterInput = req.body;
-        console.log(registerInput);
+        const registerInput: UserRegisterInput = req.body;
+
+        let cognitoRes: {message: string; userSub: string} = {message: '', userSub: ''};
+
         try {
-            const cognitoRes = await CognitoClient.register(registerInput);
-            return res.status(HttpStatusCode.OK).json(cognitoRes);
+            cognitoRes = await CognitoClient.register(registerInput);
+        } catch (error: any) {
+            next(error);
+        }
+
+        try {
+            if (!registerInput.userID) {
+                registerInput.userID = cognitoRes.userSub;
+            }
+
+            const mongodbRes = await UserDAO.create(registerInput);
+
+            return res.status(HttpStatusCode.OK).json(mongodbRes);
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    static async confirmRegistration(req: Request, res: Response, next: any) {
+        const {email, confirmationCode} = req.body;
+        try {
+            await CognitoClient.confirmSignUp(email, confirmationCode);
+            return res.status(HttpStatusCode.OK).json({
+                message: 'User registration confirmed successfully',
+            });
         } catch (error: any) {
             next(error);
         }
@@ -25,7 +51,7 @@ class AuthController {
 
     static async login(req: Request, res: Response, next: any) {
         try {
-            const loginInput: LoginInput = req.body;
+            const loginInput: UserLoginInput = req.body;
             const cognitoRes = await CognitoClient.login(loginInput);
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {

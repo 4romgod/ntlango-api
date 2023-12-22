@@ -12,6 +12,11 @@ class AuthValidators {
         check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),
     ];
 
+    static confirmRegistration = [
+        check('email').isEmail().withMessage('Must be a valid email address'),
+        check('code').isLength({min: 6}).withMessage('Invalid confirmation code'),
+    ];
+
     static login = [
         check('email').isEmail().withMessage('Must be a valid email address'),
         check('password').isLength({min: 6}).withMessage('Password must be at least 6 characters long'),

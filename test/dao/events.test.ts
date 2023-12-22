@@ -3,7 +3,7 @@ import {SinonStub, createSandbox} from 'sinon';
 import {EventDAO} from '../../lib/dao';
 import Event from '../../lib/models/event';
 import {HttpStatusCode} from '../../lib/utils';
-import {EventStatus, UpdateEventInput, IEvent} from 'ntlango-api-client';
+import {EventStatus, EventUpdateInput, IEvent} from 'ntlango-api-client';
 
 describe('Event DAO', () => {
     const sandbox = createSandbox();
@@ -21,6 +21,7 @@ describe('Event DAO', () => {
     beforeEach(() => {
         sampleEvent = {
             _id: 'sampleEventId',
+            eventID: 'sampleEventId',
             title: 'Sample Event',
             description: 'This is a sample event',
             status: EventStatus.Ongoing,
@@ -120,7 +121,7 @@ describe('Event DAO', () => {
             queryStub.exec.resolves(sampleEvent);
             findByIdAndUpdateStub.returns(queryStub);
 
-            const eventData: UpdateEventInput = {title: newTitle};
+            const eventData: EventUpdateInput = {title: newTitle};
             const updatedEvent = await EventDAO.updateEvent(sampleEvent._id, eventData);
 
             expect(updatedEvent).to.deep.equal(sampleEvent);

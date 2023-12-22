@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {HttpStatusCode} from '../utils';
 import {CognitoClient} from '../clients';
-import {ConfirmForgotPasswordInput, UpdateUserInput} from 'ntlango-api-client';
+import {UserConfirmForgotPasswordInput, UserUpdateInput} from 'ntlango-api-client';
 
 class ProfileController {
     private static cognitoClient: CognitoClient;
@@ -14,7 +14,7 @@ class ProfileController {
 
     static async updateProfile(req: Request, res: Response, next: any) {
         try {
-            const updateInput: UpdateUserInput = req.body;
+            const updateInput: UserUpdateInput = req.body;
             const accessToken = req.headers.authorization || '';
             const cognitoRes = await CognitoClient.updateUserAttributes({accessToken, updateInput});
             return res.status(HttpStatusCode.OK).json(cognitoRes);
@@ -35,7 +35,7 @@ class ProfileController {
 
     static async confirmForgotPassword(req: Request, res: Response, next: any) {
         try {
-            const confirmForgotPasswordInput: ConfirmForgotPasswordInput = req.body;
+            const confirmForgotPasswordInput: UserConfirmForgotPasswordInput = req.body;
             const cognitoRes = await CognitoClient.confirmForgotPassword(confirmForgotPasswordInput);
             return res.status(HttpStatusCode.OK).json(cognitoRes);
         } catch (error: any) {
